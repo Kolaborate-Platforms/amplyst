@@ -3,7 +3,7 @@
 //https://api.apify.com/v2/actor-runs/no77tEr71axHecaNX?token=apify_api_7duCuWXWiRN2DJNi5aEVSalzmMhEc12ijzrz
 import axios from "axios";
 
-const APIFY_TOKEN = "apify_api_7duCuWXWiRN2DJNi5aEVSalzmMhEc12ijzrz";
+const APIFY_TOKEN = process.env.APIFY_TOKEN;
 const INSTAGRAM_ACTOR_ID = "apify/instagram-profile-scraper";
 const RUN_ID="no77tEr71axHecaNX";
 
