@@ -1,8 +1,11 @@
 "use client";
 
+import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
+import { useRouter } from "next/navigation";
 
 export default function HeroSection() {
+  const router = useRouter();
   // Animation variants for floating effect
   const floatingVariants = {
     animate: {
@@ -193,16 +196,18 @@ export default function HeroSection() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 1.6 }}
           >
-            <button
+            <Button
               className="bg-gradient-to-r from-[#3A7CA5] to-[#88B04B] hover:from-[#3A7CA5]/90 hover:to-[#88B04B]/90 text-white px-8 py-4 rounded-full text-lg font-semibold transition-all duration-300"
+              onClick={() => router.push("/register?role=influencer")}
             >
               Join as Creator
-            </button>
-            <button
+            </Button>
+            <Button
               className="border-2 border-gray-300 hover:border-[#3A7CA5] text-gray-700 hover:text-[#3A7CA5] px-8 py-4 rounded-full text-lg font-semibold transition-all duration-300"
+              onClick={() => router.push("/register?role=brand")}
             >
               Find Influencers
-            </button>
+            </Button>
           </motion.div>
         </div>
       </div>

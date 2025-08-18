@@ -70,34 +70,47 @@ import { api } from "./_generated/api";
       includeExpired: v.optional(v.boolean()),
     },
     handler: async (ctx, args) => {
+      // Wait a bit for auth to be established
       const identity = await ctx.auth.getUserIdentity();
+      
       if (!identity) {
-        console.log("No identity found");
-        return []; // Return empty array instead of throwing
+        console.log("No identity found - user may not be authenticated");
+        throw new Error("Authentication required to fetch campaigns");
       }
 
-      // Find the user
+      console.log("Identity found:", identity.tokenIdentifier);
+
+      // Find the user with better error handling
       const user = await ctx.db
         .query("users")
         .withIndex("by_token", q => q.eq("tokenIdentifier", identity.tokenIdentifier))
         .unique();
 
       if (!user) {
-        console.log("User not found");
-        return []; // Return empty array if user doesn't exist
+        console.log("User not found for token:", identity.tokenIdentifier);
+        // This might indicate the user hasn't completed registration
+        throw new Error("User profile not found. Please complete your registration.");
       }
 
-      const campaigns = await ctx.db
-        .query("campaigns")
-        .withIndex("by_creatorUserId", (q) => q.eq("creatorUserId", user._id))
-        .filter((q) => 
-          args.includeExpired 
-            ? q.eq(q.field("status"), q.field("status")) // Always true
-            : q.neq(q.field("status"), "expired")
-        )
-        .collect();
+      console.log("User found:", user._id);
 
-      return campaigns;
+      try {
+        const campaigns = await ctx.db
+          .query("campaigns")
+          .withIndex("by_creatorUserId", (q) => q.eq("creatorUserId", user._id))
+          .filter((q) => 
+            args.includeExpired 
+              ? q.eq(q.field("status"), q.field("status")) // Always true
+              : q.neq(q.field("status"), "expired")
+          )
+          .collect();
+
+        console.log(`Found ${campaigns.length} campaigns for user ${user._id}`);
+        return campaigns;
+      } catch (error) {
+        console.error("Error fetching campaigns:", error);
+        throw new Error("Failed to fetch campaigns");
+      }
     },
   });
 

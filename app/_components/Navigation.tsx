@@ -1,6 +1,8 @@
 "use client";
 
-import { SignInButton } from "@clerk/nextjs";
+import { SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
+import Link from "next/link";
+import RoleBased from "./roleBased";
 
 export default function Navigation() {
   return (
@@ -12,19 +14,22 @@ export default function Navigation() {
           </div>
         </div>
         <div className="hidden md:flex items-center space-x-8">
-          <a href="#features" className="text-gray-600 hover:text-[#3A7CA5] transition-colors">Features</a>
-          <a href="#how-it-works" className="text-gray-600 hover:text-[#3A7CA5] transition-colors">How It Works</a>
-          <a href="#success-stories" className="text-gray-600 hover:text-[#3A7CA5] transition-colors">Success Stories</a>
+          <Link href="#features" className="text-gray-600 hover:text-[#3A7CA5] transition-colors">Features</Link>
+          <Link href="#how-it-works" className="text-gray-600 hover:text-[#3A7CA5] transition-colors">How It Works</Link>
+          <Link href="#success-stories" className="text-gray-600 hover:text-[#3A7CA5] transition-colors">Success Stories</Link>
         </div>
         <div className="flex items-center space-x-4">
+          <SignedOut>
             <button className="bg-gradient-to-r from-[#3A7CA5] to-[#88B04B] hover:from-[#3A7CA5]/90 hover:to-[#88B04B]/90 text-white px-6 py-2 rounded-full font-medium transition-all duration-300">
               Get Started
             </button>
+          </SignedOut>
+
           <SignInButton mode="modal">
-            <button className="bg-gradient-to-r from-[#3A7CA5] to-[#88B04B] hover:from-[#3A7CA5]/90 hover:to-[#88B04B]/90 text-white px-6 py-2 rounded-full font-medium transition-all duration-300">
-              Sign In
-            </button>
+            <RoleBased/>
+        
           </SignInButton>
+              <UserButton />
         </div>
       </div>
     </nav>
