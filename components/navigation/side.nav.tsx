@@ -9,7 +9,7 @@ const roleRoutes: Record<UserRoleEnum, NavItem[]> = {
     [UserRoleEnum.BRAND]: [
         {
             label: "Dashboard",
-            href: "/brand/dashboard",
+            href: "/brand",
             icon: Home,
             tabValue: "overview",
             description: "Overview and stats"
@@ -148,25 +148,36 @@ const roleRoutes: Record<UserRoleEnum, NavItem[]> = {
     ]
 };
 
+import { usePathname } from "next/navigation";
+
 export default function SideNav() {
-    const userRole = useQuery(api.users.getMyRole);
+    // const userRole = useQuery(api.users.getMyRole);
+    const userRole = UserRoleEnum.BRAND;
+    const navs = userRole ? roleRoutes[userRole] : [];
+    const currentPath = usePathname();
 
-    const navs = userRole ? roleRoutes[userRole] : []
-
-    return <>
-        <div className='flex justify-center items-center border-b border-primary h-32'>
-            <img src='/assets/logo.png' alt="Amplyst Logo" className='scale-75' />
-        </div>
-        <div className='space-y-6 mt-4'>
-            {navs.map((item, index) => {
-                const Icon = item.icon;
-                return (
-                    <a key={index} href={item.href} className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-primary hover:text-white transition-colors cursor-pointer">
-                        <Icon className="w-5 h-5" />
-                        <span className="capitalize">{item.label}</span>
-                    </a>
-                );
-            })}
-        </div>
-    </>
+    return (
+        <>
+            <div className='flex justify-center items-center border-b border-primary h-32'>
+                <img src='/assets/logo.png' alt="Amplyst Logo" className='scale-75' />
+            </div>
+            <div className='space-y-6 mt-4'>
+                {navs.map((item, index) => {
+                    const Icon = item.icon;
+                    const isActive = currentPath === item.href;
+                    return (
+                        <a
+                            key={index}
+                            href={item.href}
+                            className={`flex items-center gap-3 px-3 py-2 rounded-md transition-colors cursor-pointer
+                                ${isActive ? "bg-primary text-white" : "hover:bg-primary hover:text-white"}`}
+                        >
+                            <Icon className="w-5 h-5" />
+                            <span className="capitalize">{item.label}</span>
+                        </a>
+                    );
+                })}
+            </div>
+        </>
+    );
 }
