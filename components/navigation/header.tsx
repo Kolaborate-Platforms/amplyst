@@ -1,5 +1,12 @@
 'use client'
 
+import { usePathname } from 'next/navigation'
+
 export default function Header() {
-    return <div>header</div>
+    const path = usePathname()
+    return <>
+    <div className='flex flex-row items-center justify-between'>
+        
+    </div>
+    </>
 }

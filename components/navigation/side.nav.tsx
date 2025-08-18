@@ -16,7 +16,7 @@ const roleRoutes: Record<UserRoleEnum, NavItem[]> = {
         },
         {
             label: "Discover Influencers",
-            href: "/influencer/discover",
+            href: "/brand/discover",
             icon: Users,
             tabValue: "discover",
             description: "Find content creators"
@@ -154,10 +154,10 @@ export default function SideNav() {
     const navs = userRole ? roleRoutes[userRole] : []
 
     return <>
-        <div className='flex justify-center items-center border-b border-primary/80 h-32'>
+        <div className='flex justify-center items-center border-b border-primary h-32'>
             <img src='/assets/logo.png' alt="Amplyst Logo" className='scale-75' />
         </div>
-        <div className='space-y-6'>
+        <div className='space-y-6 mt-4'>
             {navs.map((item, index) => {
                 const Icon = item.icon;
                 return (
