@@ -1,9 +1,8 @@
-// https://api.apify.com/v2/acts/apify~instagram-profile-scraper/runs?token=apify_api_7duCuWXWiRN2DJNi5aEVSalzmMhEc12ijzrz
-//https://console.apify.com/view/runs/no77tEr71axHecaNX
-//https://api.apify.com/v2/actor-runs/no77tEr71axHecaNX?token=apify_api_7duCuWXWiRN2DJNi5aEVSalzmMhEc12ijzrz
+
 import axios from "axios";
 
 const APIFY_TOKEN = process.env.APIFY_TOKEN;
+const ACTOR_ID = process.env.APIFY_ACTOR_ID;
 
 
 
@@ -49,10 +48,9 @@ export async function runInstagramActor(usernames: string): Promise<InstagramPro
 
 
   const runResponse = await axios.post(
-    "https://api.apify.com/v2/acts/urbACh26VF8yHR72m/runs?token=apify_api_7duCuWXWiRN2DJNi5aEVSalzmMhEc12ijzrz",
+    `https://api.apify.com/v2/acts/${ACTOR_ID}/runs?token=${APIFY_TOKEN}`,
     input
   );
-
 
 
   console.log("Run Response from the Api in the instagram service:", runResponse.data);
@@ -67,7 +65,7 @@ export async function runInstagramActor(usernames: string): Promise<InstagramPro
     await new Promise((r) => setTimeout(r, 3000)); // wait 3 seconds
 
     const runStatusResponse = await axios.get(
-      "https://api.apify.com/v2/actor-runs/no77tEr71axHecaNX?token=apify_api_7duCuWXWiRN2DJNi5aEVSalzmMhEc12ijzrz"
+      `https://api.apify.com/v2/acts/${ACTOR_ID}/runs/${runId}?token=${APIFY_TOKEN}`
     );
 
     runStatus = runStatusResponse.data.data.status;
