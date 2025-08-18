@@ -10,7 +10,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div className='h-20 shadow-md drop-shadow-md px-6'>
                 <Header />
             </div>
-            <div className='h-[calc(100vh-80px)] p-6'>
+            <div className='h-[calc(100vh-80px)] p-6 overflow-auto'>
                 {children}
             </div>
         </div>
