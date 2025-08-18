@@ -149,6 +149,8 @@ const roleRoutes: Record<UserRoleEnum, NavItem[]> = {
 };
 
 import { usePathname } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
 
 export default function SideNav() {
     // const userRole = useQuery(api.users.getMyRole);
@@ -159,14 +161,20 @@ export default function SideNav() {
     return (
         <>
             <div className='flex justify-center items-center border-b border-primary h-32'>
-                <img src='/assets/logo.png' alt="Amplyst Logo" className='scale-75' />
+                <Image 
+                    src='/assets/logo.png' 
+                    alt="Amplyst Logo" 
+                    // className='scale-75' 
+                    height={150}
+                    width={150}
+                />
             </div>
             <div className='space-y-6 mt-4'>
                 {navs.map((item, index) => {
                     const Icon = item.icon;
                     const isActive = currentPath === item.href;
                     return (
-                        <a
+                        <Link
                             key={index}
                             href={item.href}
                             className={`flex items-center gap-3 px-3 py-2 rounded-md transition-colors cursor-pointer
@@ -174,7 +182,7 @@ export default function SideNav() {
                         >
                             <Icon className="w-5 h-5" />
                             <span className="capitalize">{item.label}</span>
-                        </a>
+                        </Link>
                     );
                 })}
             </div>
