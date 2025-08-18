@@ -1,8 +1,7 @@
 import { action, mutation, query } from "./_generated/server";
 import { v } from "convex/values";
-import { getAuthUserId } from "@convex-dev/auth/server";
+import { getAuthUserId } from "./auth";
 import { Doc, Id } from "./_generated/dataModel";
-import bcrypt from "bcryptjs";
 import { api } from "./_generated/api";
 
 
