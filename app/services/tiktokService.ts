@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const APIFY_TOKEN = process.env.APIFY_TOKEN;
-const ACTOR_ID = "urbACh26VF8yHR72m"; // Your TikTok scraping actor ID
+const ACTOR_ID = process.env.APIFY_ACTOR_ID; // Your TikTok scraping actor ID
 
 export interface TikTokProfileData {
   name: string;

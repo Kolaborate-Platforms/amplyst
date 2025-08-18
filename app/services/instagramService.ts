@@ -4,8 +4,7 @@
 import axios from "axios";
 
 const APIFY_TOKEN = process.env.APIFY_TOKEN;
-const INSTAGRAM_ACTOR_ID = "apify/instagram-profile-scraper";
-const RUN_ID="no77tEr71axHecaNX";
+
 
 
 export interface InstagramProfileData {
@@ -38,7 +37,6 @@ export interface InstagramProfileData {
   }>;
 }
 
-//https://api.apify.com/v2/acts/apify~instagram-profile-scraper/runs?token=apify_api_7duCuWXWiRN2DJNi5aEVSalzmMhEc12ijzrz
 
 
 
@@ -48,21 +46,13 @@ export async function runInstagramActor(usernames: string): Promise<InstagramPro
     usernames, // Array of usernames
   };
 
-  // Start the actor run
-  // const runResponse = await axios.post(
-  //   `https://api.apify.com/v2/acts/${INSTAGRAM_ACTOR_ID}/runs?token=${APIFY_TOKEN}`,
-  //   input
-  // );
+
 
   const runResponse = await axios.post(
     "https://api.apify.com/v2/acts/urbACh26VF8yHR72m/runs?token=apify_api_7duCuWXWiRN2DJNi5aEVSalzmMhEc12ijzrz",
     input
   );
 
-  //  const runResponse = await axios.post(
-  //   "https://api.apify.com/v2/acts/apify~instagram-profile-scraper/runs?token=apify_api_7duCuWXWiRN2DJNi5aEVSalzmMhEc12ijzrz",
-  //   input
-  // );
 
 
   console.log("Run Response from the Api in the instagram service:", runResponse.data);
