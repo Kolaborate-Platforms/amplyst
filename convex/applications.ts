@@ -239,3 +239,87 @@ export const listApprovedApplicationsForInfluencer = query(async (ctx) => {
     };
   });
 });
+
+export const getApplicationsByCampaign = query({
+  args: { campaignId: v.id("campaigns") },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return [];
+
+    // Ensure user is the creator of this campaign
+    const campaign = await ctx.db.get(args.campaignId);
+    if (!campaign) return [];
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
+      .unique();
+
+    if (!user || user._id !== campaign.creatorUserId) {
+      throw new Error("Unauthorized to view applications for this campaign");
+    }
+
+    // Fetch applications for this campaign
+    const applications = await ctx.db
+      .query("applications")
+      .withIndex("by_campaign", (q) => q.eq("campaignId", args.campaignId))
+      .collect();
+
+    console.log("Applications in getApplicationsByCampaign function", applications)
+
+    return applications;
+  },
+});
+
+
+export const getApplicationStatsByCampaign = query({
+  args: { campaignId: v.id("campaigns") },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return { pending: 0, approved: 0, rejected: 0 };
+
+    const campaign = await ctx.db.get(args.campaignId);
+    if (!campaign) return { pending: 0, approved: 0, rejected: 0 };
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
+      .unique();
+
+    if (!user || user._id !== campaign.creatorUserId) {
+      throw new Error("Unauthorized to view application stats for this campaign");
+    }
+
+    const applications = await ctx.db
+      .query("applications")
+      .withIndex("by_campaign", (q) => q.eq("campaignId", args.campaignId))
+      .collect();
+
+    
+console.log("applications in getApplicationStatsByCampaign", applications)
+    const stats = { pending: 0, approved: 0, rejected: 0 };
+    for (const app of applications) {
+      stats[app.status] += 1;
+    }
+
+    return stats;
+  },
+});
+
+
+export const getCampaignWithApplications = query({
+  args: { campaignId: v.id("campaigns") },
+  handler: async (ctx, args) => {
+    const campaign = await ctx.db.get(args.campaignId);
+    if (!campaign) return null;
+
+    const applications = await ctx.db
+      .query("applications")
+      .withIndex("by_campaign", (q) => q.eq("campaignId", args.campaignId))
+      .collect();
+
+    console.log("applications in getCampaignWithApplications function", applications)
+
+    return { ...campaign, applications };
+  },
+});

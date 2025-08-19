@@ -17,7 +17,7 @@ import { Id } from "../../../convex/_generated/dataModel";
 
 const tabItems = [
     { label: "Overview", value: "overview", href: "/brand" },
-    { label: "Influencers", value: "influencers", href: "/brand/influencers" },
+    { label: "Influencers", value: "influencers", href: "/brand/influencer" },
     { label: "Campaigns", value: "campaigns", href: "/brand/campaigns" },
     { label: "Applications", value: "applications", href: "/brand/applications" },
 ];
@@ -263,7 +263,7 @@ export default function BrandDashboardPage() {
                                         onClick={() => router.push('/brand/campaigns/create')}
                                     >
                                         <Plus className="mr-2 h-4 w-4" />
-                                        Add Campaign
+                                        Create Campaign
                                     </Button>
                                 </CardHeader>
                                 <CardContent>
