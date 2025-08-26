@@ -968,8 +968,7 @@ const InfluencerDashboard = () => {
             </TabsContent>
 
             <TabsContent value="discover">
-              <div className="text-center py-12">
-                <Search className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+              <div className="text-center py-10">
                 <CampaignDiscovery campaigns={allCampaigns} profile={profile} />
               </div>
             </TabsContent>

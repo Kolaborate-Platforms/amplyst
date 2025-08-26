@@ -36,7 +36,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { toast } from "@/components/ui/use-toast"; // or your preferred toast library
 
 // Types - Updated to match your database schema
@@ -64,19 +64,9 @@ export default function CampaignsComponent() {
   
   // Fetch campaigns from database (now including expired for delete functionality)
   const campaigns = useQuery(api.campaign.listMyCampaigns, { includeExpired: true });
-//   const stats = campaigns?.map(campaign =>
-//     useQuery(api.applications.getApplicationStatsByCampaign, {
-//         campaignId: campaign._id,
-//     })
-//     );
-// console.log("stats in campaign componente", stats)
-    // const campaignApplications = campaigns?.map(campaign =>
-    //     useQuery(api.applications.getApplicationsByCampaign, {
-    //         campaignId: campaign._id,
-    //     })
-    // );
-    // console.log("campaignApplications in campaign componente", campaignApplications)
 
+  // Fetch all application stats at once to avoid Rules of Hooks violation
+  const allApplicationStats = useQuery(api.applications.getAllApplicationStatsByBrand);
 
   // Mutations
   const deleteCampaign = useMutation(api.campaign.deleteCampaign);
@@ -172,13 +162,12 @@ export default function CampaignsComponent() {
     try {
       await updateCampaignStatus({ campaignId, status: 'archived' });
         toast({
-                title: "Campaign Created",
-                description: "campaign has been created successfully",
+                title: "Campaign Archived",
+                description: "Campaign has been archived successfully",
                 variant: "success"
           });
     } catch (error) {
       console.error('Error archiving campaign:', error);
-
     }
   };
 
@@ -186,27 +175,25 @@ export default function CampaignsComponent() {
     try {
       await updateCampaignStatus({ campaignId, status: 'active' });
             toast({
-                title: "Campaign Created",
+                title: "Campaign Activated",
                 description: "Campaign has been activated successfully",
                 variant: "success"
           });
     } catch (error) {
       console.error('Error activating campaign:', error);
-    //   toast.error('Failed to activate campaign');
     }
   };
 
   const handleCompleteCampaign = async (campaignId: Id<"campaigns">) => {
     try {
       await updateCampaignStatus({ campaignId, status: 'completed' });
-        // toast({
-        //         title: "Campaign Created",
-        //         description: `${campaign.name} has been completed successfully`,
-        //         variant: "success"
-        //   });
+        toast({
+                title: "Campaign Completed",
+                description: "Campaign has been completed successfully",
+                variant: "success"
+          });
     } catch (error) {
       console.error('Error completing campaign:', error);
-    //   toast.error('Failed to complete campaign');
     }
   };
 
@@ -248,206 +235,260 @@ export default function CampaignsComponent() {
   const activeCampaigns = campaigns.filter(campaign => campaign.status !== 'expired');
   const expiredCampaigns = campaigns.filter(campaign => campaign.status === 'expired');
 
-  const renderCampaignCard = (campaign: Campaign) => (
-    <Card key={campaign._id} className={campaign.status === 'expired' ? 'border-red-200 bg-red-50/30' : ''}>
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex-1">
-            <div className="flex items-center gap-3">
-              <h3 className="text-xl font-semibold">{campaign.title}</h3>
-              {campaign.status === 'expired' && (
-                <AlertTriangle className="h-5 w-5 text-red-500" />
+  const renderCampaignCard = (campaign: Campaign) => {
+    // Get real-time stats for this campaign
+    const stats = allApplicationStats?.[campaign._id] || { total: 0, approved: 0, pending: 0, rejected: 0 };
+    
+    return (
+      <Card key={campaign._id} className={campaign.status === 'expired' ? 'border-red-200 bg-red-50/30' : ''}>
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex-1">
+              <div className="flex items-center gap-3">
+                <h3 className="text-xl font-semibold">{campaign.title}</h3>
+                {campaign.status === 'expired' && (
+                  <AlertTriangle className="h-5 w-5 text-red-500" />
+                )}
+              </div>
+              <p className="text-gray-600 mt-1">{campaign.description}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge
+                variant={getBadgeVariant(campaign.status)}
+                className={getBadgeClassName(campaign.status)}
+              >
+                {campaign.status}
+              </Badge>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => handleViewDetails(campaign._id)}>
+                    <Eye className="w-4 h-4 mr-2" />
+                    View Details
+                  </DropdownMenuItem>
+                  
+                  {campaign.status !== 'expired' && (
+                    <>
+                      <DropdownMenuItem onClick={() => handleEditCampaign(campaign._id)}>
+                        <Edit className="w-4 h-4 mr-2" />
+                        Edit Campaign
+                      </DropdownMenuItem>
+                      
+                      <DropdownMenuItem onClick={() => handleManageCampaign(campaign._id)}>
+                        <Settings className="w-4 h-4 mr-2" />
+                        Manage Campaign
+                      </DropdownMenuItem>
+                      
+                      <DropdownMenuSeparator />
+                      
+                      {campaign.status === 'active' && (
+                        <>
+                          <DropdownMenuItem onClick={() => handleCompleteCampaign(campaign._id)}>
+                            <CheckCircle className="w-4 h-4 mr-2" />
+                            Mark as Completed
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleArchiveCampaign(campaign._id)}>
+                            Archive Campaign
+                          </DropdownMenuItem>
+                        </>
+                      )}
+                      
+                      {campaign.status === 'draft' && (
+                        <DropdownMenuItem onClick={() => handleActivateCampaign(campaign._id)}>
+                          Activate Campaign
+                        </DropdownMenuItem>
+                      )}
+                      
+                      {(campaign.status === 'archived' || campaign.status === 'completed') && (
+                        <DropdownMenuItem onClick={() => handleActivateCampaign(campaign._id)}>
+                          Reactivate Campaign
+                        </DropdownMenuItem>
+                      )}
+                    </>
+                  )}
+                  
+                  {campaign.status === 'expired' && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem 
+                        onClick={() => handleDeleteClick(campaign)}
+                        className="text-red-600 focus:text-red-600"
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Delete Campaign
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+            <div className="flex items-center gap-2">
+              {/* <DollarSign className="h-5 w-5 text-green-500" /> */}
+              <div>
+                <p className="text-sm text-gray-500">Budget</p>
+                <p className="font-semibold">
+                  {campaign.budget ? `$${campaign.budget.toLocaleString()}` : 'Not set'}
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Calendar className="h-5 w-5 text-blue-500" />
+              <div>
+                <p className="text-sm text-gray-500">Duration</p>
+                <p className="font-semibold">
+                  {campaign.startDate && campaign.endDate ? (
+                    `${new Date(campaign.startDate).toLocaleDateString()} - ${new Date(campaign.endDate).toLocaleDateString()}`
+                  ) : campaign.duration ? (
+                    campaign.duration
+                  ) : (
+                    'Not set'
+                  )}
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Users className="h-5 w-5 text-purple-500" />
+              <div>
+                <p className="text-sm text-gray-500">Applications</p>
+                <div className="flex items-center gap-1">
+                  <p className="font-semibold">{stats.total}</p>
+                  {stats.pending > 0 && (
+                    <Badge variant="outline" className="text-xs px-1 py-0">
+                      {stats.pending} pending
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <CheckCircle className="h-5 w-5 text-green-500" />
+              <div>
+                <p className="text-sm text-gray-500">Approved</p>
+                <div className="flex items-center gap-1">
+                  <p className="font-semibold text-green-600">{stats.approved}</p>
+                  {stats.rejected > 0 && (
+                    <Badge variant="outline" className="text-xs px-1 py-0 text-red-600 border-red-200">
+                      {stats.rejected} rejected
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Application Status Overview */}
+          {stats.total > 0 && (
+            <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-600">Application Status:</span>
+                <div className="flex gap-4">
+                  <span className="text-blue-600">
+                    Pending: {stats.pending}
+                  </span>
+                  <span className="text-green-600">
+                    Approved: {stats.approved}
+                  </span>
+                  <span className="text-red-600">
+                    Rejected: {stats.rejected}
+                  </span>
+                </div>
+              </div>
+              {stats.total > 0 && (
+                <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="bg-green-500 h-2 rounded-full transition-all duration-300" 
+                    style={{ width: `${(stats.approved / stats.total) * 100}%` }}
+                  ></div>
+                </div>
               )}
             </div>
-            <p className="text-gray-600 mt-1">{campaign.description}</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Badge
-              variant={getBadgeVariant(campaign.status)}
-              className={getBadgeClassName(campaign.status)}
-            >
-              {campaign.status}
-            </Badge>
-            
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => handleViewDetails(campaign._id)}>
-                  <Eye className="w-4 h-4 mr-2" />
-                  View Details
-                </DropdownMenuItem>
-                
-                {campaign.status !== 'expired' && (
-                  <>
-                    <DropdownMenuItem onClick={() => handleEditCampaign(campaign._id)}>
-                      <Edit className="w-4 h-4 mr-2" />
-                      Edit Campaign
-                    </DropdownMenuItem>
-                    
-                    <DropdownMenuItem onClick={() => handleManageCampaign(campaign._id)}>
-                      <Settings className="w-4 h-4 mr-2" />
-                      Manage Campaign
-                    </DropdownMenuItem>
-                    
-                    <DropdownMenuSeparator />
-                    
-                    {campaign.status === 'active' && (
-                      <>
-                        <DropdownMenuItem onClick={() => handleCompleteCampaign(campaign._id)}>
-                          <CheckCircle className="w-4 h-4 mr-2" />
-                          Mark as Completed
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleArchiveCampaign(campaign._id)}>
-                          Archive Campaign
-                        </DropdownMenuItem>
-                      </>
-                    )}
-                    
-                    {campaign.status === 'draft' && (
-                      <DropdownMenuItem onClick={() => handleActivateCampaign(campaign._id)}>
-                        Activate Campaign
-                      </DropdownMenuItem>
-                    )}
-                    
-                    {(campaign.status === 'archived' || campaign.status === 'completed') && (
-                      <DropdownMenuItem onClick={() => handleActivateCampaign(campaign._id)}>
-                        Reactivate Campaign
-                      </DropdownMenuItem>
-                    )}
-                  </>
-                )}
-                
-                {campaign.status === 'expired' && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem 
-                      onClick={() => handleDeleteClick(campaign)}
-                      className="text-red-600 focus:text-red-600"
-                    >
-                      <Trash2 className="w-4 h-4 mr-2" />
-                      Delete Campaign
-                    </DropdownMenuItem>
-                  </>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-          <div className="flex items-center gap-2">
-            <div>
-              <p className="text-sm text-gray-500">Budget</p>
-              <p className="font-semibold">
-                {campaign.budget ? `$${campaign.budget.toLocaleString()}` : 'Not set'}
-              </p>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <Calendar className="h-5 w-5 text-blue-500" />
-            <div>
-              <p className="text-sm text-gray-500">Duration</p>
-              <p className="font-semibold">
-                {campaign.startDate && campaign.endDate ? (
-                  `${new Date(campaign.startDate).toLocaleDateString()} - ${new Date(campaign.endDate).toLocaleDateString()}`
-                ) : campaign.duration ? (
-                  campaign.duration
-                ) : (
-                  'Not set'
-                )}
-              </p>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <Users className="h-5 w-5 text-purple-500" />
-            <div>
-              <p className="text-sm text-gray-500">Applications</p>
-              <p className="font-semibold">{campaign.applications || 0}</p>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <CheckCircle className="h-5 w-5 text-green-500" />
-            <div>
-              <p className="text-sm text-gray-500">Approved</p>
-              <p className="font-semibold">{campaign.approved || 0}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap gap-2 mb-4">
-          {campaign.contentTypes && campaign.contentTypes.length > 0 ? (
-            campaign.contentTypes.map((type: string) => (
-              <Badge key={type} variant="outline">
-                {type}
-              </Badge>
-            ))
-          ) : (
-            <Badge variant="outline" className="text-gray-400">
-              No content types specified
-            </Badge>
           )}
-        </div>
 
-        {/* Quick action buttons for active campaigns */}
-        {campaign.status !== 'expired' && (
-          <div className="flex justify-end gap-2">
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => handleViewDetails(campaign._id)}
-            >
-              <Eye className="w-4 h-4 mr-1" />
-              View
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => handleEditCampaign(campaign._id)}
-            >
-              <Edit className="w-4 h-4 mr-1" />
-              Edit
-            </Button>
-            <Button 
-              size="sm"
-              onClick={() => handleManageCampaign(campaign._id)}
-            >
-              <Settings className="w-4 h-4 mr-1" />
-              Manage
-            </Button>
+          <div className="flex flex-wrap gap-2 mb-4">
+            {campaign.contentTypes && campaign.contentTypes.length > 0 ? (
+              campaign.contentTypes.map((type: string) => (
+                <Badge key={type} variant="outline">
+                  {type}
+                </Badge>
+              ))
+            ) : (
+              <Badge variant="outline" className="text-gray-400">
+                No content types specified
+              </Badge>
+            )}
           </div>
-        )}
-        
-        {/* Delete button for expired campaigns */}
-        {campaign.status === 'expired' && (
-          <div className="flex justify-end gap-2">
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => handleViewDetails(campaign._id)}
-            >
-              <Eye className="w-4 h-4 mr-1" />
-              View Details
-            </Button>
-            <Button 
-              variant="destructive" 
-              size="sm"
-              onClick={() => handleDeleteClick(campaign)}
-            >
-              <Trash2 className="w-4 h-4 mr-1" />
-              Delete
-            </Button>
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  );
+
+          {/* Quick action buttons for active campaigns */}
+          {campaign.status !== 'expired' && (
+            <div className="flex justify-end gap-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => handleViewDetails(campaign._id)}
+              >
+                <Eye className="w-4 h-4 mr-1" />
+                View
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => handleEditCampaign(campaign._id)}
+              >
+                <Edit className="w-4 h-4 mr-1" />
+                Edit
+              </Button>
+              <Button 
+                size="sm"
+                onClick={() => handleManageCampaign(campaign._id)}
+                className={stats.pending > 0 ? "bg-orange-500 hover:bg-orange-600" : ""}
+              >
+                <Settings className="w-4 h-4 mr-1" />
+                Manage
+                {stats.pending > 0 && (
+                  <Badge className="ml-1 bg-white text-orange-600 text-xs">
+                    {stats.pending}
+                  </Badge>
+                )}
+              </Button>
+            </div>
+          )}
+          
+          {/* Delete button for expired campaigns */}
+          {campaign.status === 'expired' && (
+            <div className="flex justify-end gap-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => handleViewDetails(campaign._id)}
+              >
+                <Eye className="w-4 h-4 mr-1" />
+                View Details
+              </Button>
+              <Button 
+                variant="destructive" 
+                size="sm"
+                onClick={() => handleDeleteClick(campaign)}
+              >
+                <Trash2 className="w-4 h-4 mr-1" />
+                Delete
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    );
+  };
 
   return (
     <div className="space-y-6">

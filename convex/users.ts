@@ -20,6 +20,32 @@ export const getMyProfile = query({
 });
 
 
+export const getCurrentUserWithProfile = query({
+  handler: async (ctx): Promise<{ user: Doc<"users">; profile: Doc<"profiles"> | null } | null> => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      return null;
+    }
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
+      .unique();
+
+    if (!user) {
+      return null;
+    }
+
+    const profile = await ctx.db
+      .query("profiles")
+      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .unique();
+
+    return { user, profile };
+  },
+});
+
+
 export const insertProfile = mutation({
   args: {
     role: v.union(

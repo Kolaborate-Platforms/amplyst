@@ -781,7 +781,7 @@ const getStatusInfo = (status: CampaignStatus) => {
       await onSave(campaignId, campaignData);
       
       // Navigate back to dashboard
-      router.push("/brand");
+      router.push("/dashboard/brand");
    
     } catch (error) {
       console.error("Error saving campaign:", error);
