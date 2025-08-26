@@ -406,7 +406,7 @@ const InfluencerDashboard = () => {
           },
           {
             title: "Active Campaigns",
-            value: approvedApplicationsCount.toString(),
+            value: activeCampaignsCount.toString(),
             icon: Target,
             color: "text-blue-600",
             bgColor: "bg-blue-50",

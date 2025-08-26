@@ -12,7 +12,10 @@ import {
   TrendingUp,
   Eye,
   Heart,
-  Star
+  Star,
+  Play,
+  Search,
+  Target
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -20,6 +23,7 @@ import { Doc, Id } from "../../../convex/_generated/dataModel";
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { CampaignWithCreator, Profile } from "../../../lib/types/index";
+import { motion } from "framer-motion";
 
 interface CampaignDiscoveryProps {
   campaigns: CampaignWithCreator[];
@@ -35,6 +39,11 @@ const CampaignDiscovery = ({ campaigns, profile }: CampaignDiscoveryProps) => {
   const [showModal, setShowModal] = useState(false);
   const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(null);
   const [isClient, setIsClient] = useState(false);
+
+  const allCampaigns = useQuery(api.campaign.allCampaigns);
+  const activeCampaigns = useQuery(api.campaign.activeForInfluencer);
+  const applications = useQuery(api.applications.listInfluencerApplications);
+  const allBrands = useQuery(api.brands.listBrands);
 
   // Fix hydration by ensuring client-side rendering
   useEffect(() => {
@@ -55,12 +64,23 @@ const CampaignDiscovery = ({ campaigns, profile }: CampaignDiscoveryProps) => {
     }
   };
 
+  if (!profile || !allCampaigns || !activeCampaigns || !applications || !allBrands) {
+    return (
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center space-y-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="text-gray-600">Loading your dashboard...</p>
+          </div>
+        </div>
+    );
+  }
+
   // Format creation time consistently
   const getCreationTime = (creationTime: number | undefined) => {
     return creationTime || 0;
   };
 
-  const filteredCampaigns = campaigns
+  const filteredCampaigns = activeCampaigns
     .filter(campaign => campaign.status === "active") // Only show active campaigns
     .filter(campaign => {
       const matchesSearch = campaign.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -71,7 +91,7 @@ const CampaignDiscovery = ({ campaigns, profile }: CampaignDiscoveryProps) => {
                            (campaign.niche && campaign.niche.toLowerCase().includes(selectedNiche.toLowerCase())) ||
                            (campaign.contentTypes && campaign.contentTypes.some(type => type.toLowerCase().includes(selectedNiche.toLowerCase())));
 
-      const matchesPlatform = !selectedPlatform || (campaign.platform && campaign.platform.toLowerCase() === selectedPlatform.toLowerCase());
+      const matchesPlatform = selectedPlatform === "all" || (campaign.platform && campaign.platform.toLowerCase() === selectedPlatform.toLowerCase());
       
       return matchesSearch && matchesNiche && matchesPlatform;
     }).sort((a, b) => {
@@ -98,6 +118,10 @@ const CampaignDiscovery = ({ campaigns, profile }: CampaignDiscoveryProps) => {
 
   const handleApplyClick = (campaignId: string) => {
     router.push(`/campaigns/${campaignId}/apply`);
+  };
+
+  const handleViewDetails = (campaignId: string) => {
+    router.push(`/campaigns/${campaignId}`);
   };
 
   // Don't render until client-side hydration is complete
@@ -132,13 +156,13 @@ const CampaignDiscovery = ({ campaigns, profile }: CampaignDiscoveryProps) => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Input
+            {/* <Input
               placeholder="Search campaigns..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="border-gray-300"
             />
-            
+             */}
             <Select value={selectedNiche} onValueChange={setSelectedNiche}>
               <SelectTrigger>
                 <SelectValue placeholder="Select Niche" />
@@ -184,120 +208,165 @@ const CampaignDiscovery = ({ campaigns, profile }: CampaignDiscoveryProps) => {
               <SelectTrigger>
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
-              {/* <SelectContent>
+              <SelectContent>
                 <SelectItem value="newest">Newest First</SelectItem>
                 <SelectItem value="payment-high">Highest Payment</SelectItem>
                 <SelectItem value="payment-low">Lowest Payment</SelectItem>
                 <SelectItem value="deadline">Deadline</SelectItem>
-              </SelectContent> */}
+              </SelectContent>
             </Select>
           </div>
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {filteredCampaigns.map((campaign) => (
-          <Card key={campaign._id} className="hover:shadow-lg transition-shadow duration-200 border-l-4 border-l-[#3A7CA5]">
-            <CardHeader className="pb-4">
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="text-lg font-semibold text-gray-900">{campaign.title}</CardTitle>
-                  {campaign.creatorName && (
-                    <p className="text-sm text-gray-600 mt-1">by {campaign.creatorName}</p>
-                  )}
-                </div>
-                <Badge 
-                  variant={campaign.status === 'active' ? 'default' : 'secondary'}
-                  className={campaign.status === 'active' ? 'bg-green-100 text-green-800' : ''}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Target className="h-5 w-5 text-green-600" />
+            Active Campaigns
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {filteredCampaigns.length > 0 ? (
+            <div className="space-y-4">
+              {filteredCampaigns.map((campaign, index) => (
+                <motion.div
+                  key={campaign._id}
+                  className="p-4 sm:p-6 border rounded-xl hover:bg-gray-50 transition-all duration-200 hover:shadow-md"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
                 >
-                  {campaign.status}
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-sm text-gray-700 leading-relaxed">{campaign.description}</p>
-              
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div className="flex items-center gap-2">
-                  <DollarSign className="h-4 w-4 text-[#88B04B]" />
-                  <span className="font-medium text-[#88B04B]">
-                    {campaign.budget ? `$${campaign.budget.toLocaleString()}` : "N/A"}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-[#E19629]" />
-                  <span>{formatDate(campaign.endDate)}</span>
-                </div>
-              </div>
+                  <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-4">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-semibold text-lg text-gray-900 truncate">
+                        {campaign.title}
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        by {campaign.creatorUserId || 'Unknown Brand'}
+                      </p>
+                    </div>
+                    <div className="flex gap-2 flex-shrink-0">
+                      <Badge 
+                        variant="default"
+                        className="bg-green-100 text-green-800 border-green-200"
+                      >
+                        <div className="flex items-center gap-1">
+                          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                          Active
+                        </div>
+                      </Badge>
+                    </div>
+                  </div>
+                  
+                  {/* Description */}
+                  <p className="text-sm text-gray-700 mb-4 leading-relaxed">
+                    {campaign.description}
+                  </p>
+                  
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 text-sm mb-4">
+                    <div className="flex items-center gap-2">
+                      <DollarSign className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="truncate">
+                        ${campaign.budget?.toLocaleString() ?? 'TBD'}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Users className="h-4 w-4 text-purple-500 flex-shrink-0" />
+                      <span className="truncate">
+                        {campaign.targetAudience || 'General'}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Star className="h-4 w-4 text-yellow-500 flex-shrink-0" />
+                      <span className="truncate">
+                        {campaign.contentTypes?.join(', ') || 'Various'}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4 text-orange-500 flex-shrink-0" />
+                      <span className="truncate">
+                        {formatDate(campaign.endDate)}
+                      </span>
+                    </div>
+                  </div>
 
-              <div className="space-y-2">
-                <div className="flex flex-wrap gap-1">
-                  {campaign.targetAudience && (
-                    <Badge variant="secondary" className="text-xs bg-[#3A7CA5]/10 text-[#3A7CA5]">
-                      {campaign.targetAudience}
-                    </Badge>
+                  {/* Additional badges */}
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {campaign.platform && (
+                      <Badge variant="outline" className="text-xs">
+                        {campaign.platform}
+                      </Badge>
+                    )}
+                    {campaign.niche && (
+                      <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700 border-purple-200">
+                        {campaign.niche}
+                      </Badge>
+                    )}
+                    {campaign.duration && (
+                      <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                        {campaign.duration}
+                      </Badge>
+                    )}
+                  </div>
+
+                  {/* Requirements */}
+                  {campaign.requirements && (
+                    <div className="text-xs text-gray-600 mb-4">
+                      <span className="font-medium">Requirements:</span> {campaign.requirements}
+                    </div>
                   )}
-                  {campaign.platform && (
-                    <Badge variant="outline" className="text-xs">
-                      {campaign.platform}
-                    </Badge>
-                  )}
-                  {campaign.niche && (
-                    <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700 border-purple-200">
-                      {campaign.niche}
-                    </Badge>
-                  )}
-                  {campaign.contentTypes && campaign.contentTypes.map((type) => (
-                    <Badge key={type} variant="outline" className="text-xs">
-                      {type}
-                    </Badge>
-                  ))}
-                </div>
-                
-                <div className="text-xs text-gray-600">
-                  <span className="font-medium">Requirements:</span> {campaign.requirements || "N/A"}
-                </div>
+                  
+                  <div className="flex flex-col sm:flex-row justify-end gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="w-full sm:w-auto"
+                      onClick={() => handleViewDetails(campaign._id)}
+                    >
+                      <Eye className="w-4 h-4 mr-2" />
+                      View Details
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700"
+                      onClick={() => handleApplyClick(campaign._id)}
+                      disabled={profile.role !== "influencer"}
+                    >
+                      <Play className="w-4 h-4 mr-2" />
+                      Apply Now
+                    </Button>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Target className="w-8 h-8 text-gray-400" />
               </div>
-
-              <div className="flex gap-2 pt-2">
-                <Button 
-                  className="flex-1 bg-[#3A7CA5] hover:bg-[#3A7CA5]/90 text-white"
-                  size="sm"
-                  onClick={() => handleApplyClick(campaign._id)}
-                  disabled={profile.role !== "influencer"} // Only influencers can apply
-                >
-                  Apply Now
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="border-[#3A7CA5] text-[#3A7CA5] hover:bg-[#3A7CA5]/5"
-                >
-                  Save
-                </Button>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                {campaign.duration && (
-                  <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                    {campaign.duration}
-                  </Badge>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {filteredCampaigns.length === 0 && (
-        <Card>
-          <CardContent className="text-center py-12">
-            <TrendingUp className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No campaigns found</h3>
-            <p className="text-gray-600">Try adjusting your filters to see more campaigns.</p>
-          </CardContent>
-        </Card>
-      )}
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No Active Campaigns Found
+              </h3>
+              <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                Try adjusting your filters to discover more campaign opportunities.
+              </p>
+              <Button 
+                onClick={() => {
+                  setSearchTerm("");
+                  setSelectedNiche("all");
+                  setSelectedPlatform("all");
+                  setSortBy("newest");
+                }}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                <Search className="w-4 h-4 mr-2" />
+                Clear Filters
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };
