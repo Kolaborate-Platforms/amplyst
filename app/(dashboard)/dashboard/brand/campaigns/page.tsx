@@ -125,15 +125,15 @@ export default function CampaignsComponent() {
   };
 
   const handleEditCampaign = (campaignId: string) => {
-    router.push(`/brand/campaigns/${campaignId}/edit`);
+    router.push(`/dashboard/brand/campaigns/${campaignId}/edit`);
   };
 
   const handleViewDetails = (campaignId: string) => {
-    router.push(`/brand/campaigns/${campaignId}/details`);
+    router.push(`/dashboard/brand/campaigns/${campaignId}/details`);
   };
 
   const handleManageCampaign = (campaignId: string) => {
-    router.push(`/brand/campaigns/${campaignId}/manage`);
+    router.push(`/dashboard/brand/campaigns/${campaignId}/manage`);
   };
 
   const handleDeleteClick = (campaign: Campaign) => {

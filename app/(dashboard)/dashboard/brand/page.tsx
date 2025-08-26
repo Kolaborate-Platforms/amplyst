@@ -15,12 +15,6 @@ import { SignedIn } from "@clerk/clerk-react";
 import { Id } from "../../../../convex/_generated/dataModel";
 
 
-const tabItems = [
-    { label: "Overview", value: "overview", href: "/brand" },
-    { label: "Influencers", value: "influencers", href: "/brand/influencer" },
-    { label: "Campaigns", value: "campaigns", href: "/brand/campaigns" },
-    { label: "Applications", value: "applications", href: "/brand/applications" },
-];
 
 function StatCard({ icon, label, value, accent }: { icon: React.ReactNode; label: string; value: string | number; accent?: string }) {
     return (
@@ -147,7 +141,7 @@ export default function BrandDashboardPage() {
                                     variant="outline" 
                                     size="sm" 
                                     className="ml-auto border-primary text-primary hover:bg-primary/10"
-                                    onClick={() => router.push('/brand/profile/edit')}
+                                    onClick={() => router.push('/dashboard/brand/profile/edit')}
                                 >
                                     <Pencil className="mr-2 h-4 w-4" />
                                     Edit Profile
@@ -237,7 +231,7 @@ export default function BrandDashboardPage() {
                                         variant="default" 
                                         size="sm" 
                                         className="bg-primary text-primary-foreground hover:bg-primary/90"
-                                        onClick={() => router.push('/brand/campaigns/create')}
+                                        onClick={() => router.push('/dashboard/brand/campaigns/create')}
                                     >
                                         <Plus className="mr-2 h-4 w-4" />
                                         Create Campaign
@@ -375,7 +369,7 @@ export default function BrandDashboardPage() {
                                 variant="default" 
                                 size="sm" 
                                 className="bg-primary text-primary-foreground hover:bg-primary/90"
-                                onClick={() => router.push('/brand/campaigns/create')}
+                                onClick={() => router.push('/dashboard/brand/campaigns/create')}
                             >
                                 <Plus className="mr-2 h-4 w-4" />
                                 Add Campaign

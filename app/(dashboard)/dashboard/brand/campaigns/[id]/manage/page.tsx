@@ -299,7 +299,7 @@ export default function CampaignManage({ params }: CampaignManageProps) {
 
         <Button 
           variant="outline"
-          onClick={() => router.push(`/brand/campaigns/${campaignId}/details`)}
+          onClick={() => router.push(`/dashboard/brand/campaigns/${campaignId}/details`)}
         >
           <Eye className="w-4 h-4 mr-2" />
           View Details

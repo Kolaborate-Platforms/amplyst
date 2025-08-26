@@ -100,7 +100,7 @@ export default function CampaignDetails({ params }: CampaignDetailsProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" onClick={() => router.push("/brand")}>
+          <Button variant="ghost" onClick={() => router.push("/dashboard/brand")}>
             <ArrowLeft className="w-4 h-4" />
           </Button>
           <div>
@@ -115,13 +115,13 @@ export default function CampaignDetails({ params }: CampaignDetailsProps) {
         <div className="flex gap-2">
           <Button 
             variant="outline"
-            onClick={() => router.push(`/brand/campaigns/${campaignId}/edit`)}
+            onClick={() => router.push(`/dashboard/brand/campaigns/${campaignId}/edit`)}
           >
             <Edit className="w-4 h-4 mr-2" />
             Edit
           </Button>
           <Button 
-            onClick={() => router.push(`/brand/campaigns/${campaignId}/manage`)}
+            onClick={() => router.push(`/dashboard/brand/campaigns/${campaignId}/manage`)}
           >
             <Settings className="w-4 h-4 mr-2" />
             Manage
@@ -300,13 +300,13 @@ export default function CampaignDetails({ params }: CampaignDetailsProps) {
           <div className="flex gap-4">
             <Button 
               variant="outline"
-              onClick={() => router.push(`/brand/campaigns/${campaignId}/edit`)}
+              onClick={() => router.push(`/dashboard/brand/campaigns/${campaignId}/edit`)}
             >
               <Edit className="w-4 h-4 mr-2" />
               Edit Campaign
             </Button>
             <Button 
-              onClick={() => router.push(`/brand/campaigns/${campaignId}/manage`)}
+              onClick={() => router.push(`/dashboard/brand/campaigns/${campaignId}/manage`)}
             >
               <Settings className="w-4 h-4 mr-2" />
               Manage Applications

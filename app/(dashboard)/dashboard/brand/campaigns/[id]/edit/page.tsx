@@ -177,7 +177,7 @@ export default function CampaignEdit({ params }: CampaignEditProps) {
         description: `${formData.title} has been updated successfully`,
       });
 
-      router.push('/brand/campaigns');
+      router.push('/dashboard/brand/campaigns');
     } catch (error) {
       console.error('Error updating campaign:', error);
       toast({
