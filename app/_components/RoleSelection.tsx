@@ -42,19 +42,19 @@ const RoleSelection = ({ onRoleSelect, selectedRole }: RoleSelectionProps) => {
       ],
       gradient: "from-secondary to-secondary-600",
     },
-    {
-      id: "agency",
-      title: "Marketing Agency",
-      icon: BarChart3,
-      description: "Agencies managing influencer campaigns for multiple clients",
-      benefits: [
-        "Multi-client campaign management",
-        "Advanced reporting & analytics",
-        "Team collaboration features",
-        "White-label reporting options",
-      ],
-      gradient: "from-accent to-accent-600",
-    },
+    // {
+    //   id: "agency",
+    //   title: "Marketing Agency",
+    //   icon: BarChart3,
+    //   description: "Agencies managing influencer campaigns for multiple clients",
+    //   benefits: [
+    //     "Multi-client campaign management",
+    //     "Advanced reporting & analytics",
+    //     "Team collaboration features",
+    //     "White-label reporting options",
+    //   ],
+    //   gradient: "from-accent to-accent-600",
+    // },
   ];
 
   const handleRoleClick = (roleId: string) => {

@@ -323,3 +323,98 @@ export const getCampaignWithApplications = query({
     return { ...campaign, applications };
   },
 });
+
+export const withdrawApplication = mutation({
+  args: {
+    applicationId: v.id("applications"),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+
+    // Get the user's profile
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
+      .first();
+
+    if (!user || user.role !== "influencer") {
+      throw new Error("Not authorized");
+    }
+
+    // Get the application
+    const application = await ctx.db.get(args.applicationId);
+    if (!application) {
+      throw new Error("Application not found");
+    }
+
+    // Verify the user owns this application
+    if (application.influencerId !== user._id) {
+      throw new Error("Not authorized to withdraw this application");
+    }
+
+    // Delete the application
+    await ctx.db.delete(args.applicationId);
+
+    return { success: true };
+  },
+});
+
+
+export const updateApplicationStatus = mutation({
+  args: {
+    applicationId: v.id("applications"),
+    status: v.union(
+      v.literal("pending"),
+      v.literal("approved"),
+      v.literal("rejected"),
+      // v.literal("withdrawn")
+    ),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
+      .first();
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const application = await ctx.db.get(args.applicationId);
+    if (!application) {
+      throw new Error("Application not found");
+    }
+
+    // Check authorization based on user role and action
+    if (user.role === "influencer" && application.influencerId !== user._id) {
+      throw new Error("Not authorized to modify this application");
+    }
+
+    if (user.role === "brand") {
+      const brandProfile = await ctx.db
+        .query("brands")
+        .filter((q) => q.eq(q.field("userId"), user._id))
+        .first();
+
+      if (!brandProfile || application.brandId !== brandProfile._id) {
+        throw new Error("Not authorized to modify this application");
+      }
+    }
+
+    // Update the application
+    await ctx.db.patch(args.applicationId, {
+      status: args.status,
+      updatedAt: Date.now(),
+    });
+
+    return args.applicationId;
+  },
+});

@@ -32,11 +32,13 @@ export const insertBrandProfile = mutation({
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new Error("Not authenticated");
 
+
     // Find or create user
     let user = await ctx.db
       .query("users")
       .withIndex("by_email", (q) => q.eq("email", identity.email!))
       .first();
+
     if (!user) {
       const newUserId = await ctx.db.insert("users", {
         tokenIdentifier: identity.tokenIdentifier,
@@ -51,6 +53,8 @@ export const insertBrandProfile = mutation({
       .query("brands")
       .withIndex("by_userId", (q) => q.eq("userId", user._id))
       .first();
+
+    console.log("Existing brand profile:", existing);
 
     if (existing) {
       await ctx.db.patch(existing._id, { ...args });

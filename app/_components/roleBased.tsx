@@ -17,11 +17,11 @@ export default function RoleBased() {
     if (!role) return;
 
     if (role === "influencer") {
-      router.push("/influencer");
+      router.push("/dashboard/influencer");
     } else if (role === "brand") {
-      router.push("/brand");
+      router.push("/dashboard/brand");
     } else if (role === "agency") {
-      router.push("/agency");
+      // router.push("/agency");
     }
   }, [isSignedIn, role, router]);
 

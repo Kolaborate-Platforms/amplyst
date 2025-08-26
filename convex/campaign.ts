@@ -194,6 +194,7 @@ import { api } from "./_generated/api";
         .withIndex("by_influencer", q => q.eq("influencerId", userId))
         .filter(q => q.eq(q.field("status"), "approved")) // Using approved as per schema
         .collect();
+        
       const campaignIds = activeApplications.map(app => app.campaignId);
       if (campaignIds.length === 0) return [];
       // Fetch campaign details for these IDs

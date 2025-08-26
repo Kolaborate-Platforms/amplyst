@@ -209,7 +209,7 @@ export default function CreateCampaign({
         variant: "default"
       });
       
-      router.push("/brand");
+      router.push("/dashboard/brand");
     } catch (error) {
       console.error("Error deleting campaign:", error);
       toast({
