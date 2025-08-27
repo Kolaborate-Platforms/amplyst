@@ -108,7 +108,7 @@ export const insertProfile = mutation({
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
-    console.log("User identity:", identity);
+    console.log("User identity in insertProfile function in users.ts:", identity);
 
     if (!identity) {
       throw new Error("Not authenticated");

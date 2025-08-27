@@ -71,7 +71,18 @@ export default function Header() {
             { href: '/settings', label: 'Settings', icon: <Settings className="h-4 w-4" /> },
         ]
     }
-    
+
+    const getProfileImageUrl = () => {
+        // Priority: Custom uploaded photo > Clerk photo > Fallback
+        if (userData?.profile?.profilePictureUrl) {
+            return userData.profile.profilePictureUrl
+        }
+        if (clerkUser?.imageUrl) {
+            return clerkUser.imageUrl
+        }
+        return null
+    }
+        
     return (
         <>
             <div className='flex flex-row items-center h-full justify-between'>
@@ -106,6 +117,7 @@ export default function Header() {
                                                 {clerkUser.firstName?.charAt(0) || clerkUser.emailAddresses[0]?.emailAddress.charAt(0) || 'U'}
                                             </AvatarFallback>
                                         </Avatar>
+
                                         <div className="flex flex-col">
                                             <p className="font-medium">
                                                 {clerkUser.fullName || 'User'}
@@ -175,10 +187,10 @@ export default function Header() {
                 
                 <div className="flex flex-row items-center gap-2 lg:gap-4">
                     {/* Notifications */}
-                    <button className="relative p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 cursor-pointer transition-colors">
+                    <Button className="relative p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 cursor-pointer transition-colors">
                         <BellDotIcon className="h-5 w-5 lg:h-6 lg:w-6 text-neutral-600 dark:text-neutral-400" />
                         <span className="absolute top-1 right-1 block h-2 w-2 rounded-full bg-error-500" />
-                    </button>
+                    </Button>
                     
                     {/* User Menu */}
                     {isClerkLoaded && clerkUser && (
