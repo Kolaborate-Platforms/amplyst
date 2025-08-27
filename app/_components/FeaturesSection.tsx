@@ -1,11 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion } from 'framer-motion';
 import { Zap, Target, BarChart3, Shield, CheckCircle, MessageSquare, Sparkles, ArrowRight } from "lucide-react";
 
 export default function FeaturesSection() {
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
+
+  // Predefined positions for floating elements to avoid hydration mismatches
+  const floatingPositions = useRef([
+    { top: "25%", left: "15%" },
+    { top: "91%", left: "50%" },
+    { top: "1%", left: "23%" },
+    { top: "41%", left: "54%" },
+    { top: "76%", left: "40%" },
+    { top: "4%", left: "81%" },
+    { top: "8%", left: "84%" },
+    { top: "60%", left: "26%" }
+  ]);
 
   const features = [
     {
@@ -14,8 +26,8 @@ export default function FeaturesSection() {
       title: "Smart Matching",
       description: "AI-powered matching ensures you find the perfect collaborations.",
       color: "#3A7CA5",
-      gradient: "from-blue-400 to-blue-600",
-      bgGradient: "from-blue-50 to-cyan-50"
+      gradient: "from-primary to-primary-600",
+      bgGradient: "from-primary-50 to-secondary-50"
     },
     {
       id: 2,
@@ -23,8 +35,8 @@ export default function FeaturesSection() {
       title: "Targeted Campaigns",
       description: "Reach your ideal audience with precision targeting.",
       color: "#E19629",
-      gradient: "from-orange-400 to-yellow-500",
-      bgGradient: "from-orange-50 to-yellow-50"
+      gradient: "from-accent to-accent-600",
+      bgGradient: "from-accent-50 to-accent-100"
     },
     {
       id: 3,
@@ -32,8 +44,8 @@ export default function FeaturesSection() {
       title: "Performance Tracking",
       description: "Monitor your campaign's success with detailed analytics.",
       color: "#88B04B",
-      gradient: "from-green-400 to-emerald-500",
-      bgGradient: "from-green-50 to-emerald-50"
+      gradient: "from-secondary to-secondary-600",
+      bgGradient: "from-secondary-50 to-secondary-100"
     },
     {
       id: 4,
@@ -41,8 +53,8 @@ export default function FeaturesSection() {
       title: "Secure Payments",
       description: "Hassle-free and secure payment processing for all transactions.",
       color: "#3A7CA5",
-      gradient: "from-indigo-400 to-purple-500",
-      bgGradient: "from-indigo-50 to-purple-50"
+      gradient: "from-primary to-primary-600",
+      bgGradient: "from-primary-50 to-primary-100"
     },
     {
       id: 5,
@@ -50,8 +62,8 @@ export default function FeaturesSection() {
       title: "Verified Influencers",
       description: "Collaborate with trusted and verified creators.",
       color: "#E19629",
-      gradient: "from-amber-400 to-orange-500",
-      bgGradient: "from-amber-50 to-orange-50"
+      gradient: "from-accent to-accent-600",
+      bgGradient: "from-accent-50 to-accent-100"
     },
     {
       id: 6,
@@ -59,8 +71,8 @@ export default function FeaturesSection() {
       title: "Direct Communication",
       description: "Seamlessly communicate with brands and influencers.",
       color: "#88B04B",
-      gradient: "from-teal-400 to-green-500",
-      bgGradient: "from-teal-50 to-green-50"
+      gradient: "from-secondary to-secondary-600",
+      bgGradient: "from-secondary-50 to-secondary-100"
     }
   ];
 
@@ -134,11 +146,11 @@ export default function FeaturesSection() {
   const onHoverEnd = () => setHoveredCard(null);
 
   return (
-    <section id="features" className="py-12 md:py-16 lg:py-20 px-4 bg-gradient-to-b from-gray-50 to-white relative overflow-hidden">
+    <section id="features" className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-primary-50 to-white relative overflow-hidden">
       {/* Background decorative elements */}
       <div className="absolute inset-0 pointer-events-none">
         <motion.div
-          className="absolute top-20 left-10 w-32 h-32 bg-blue-200 rounded-full opacity-10"
+          className="absolute top-20 left-10 w-32 h-32 bg-primary-200 rounded-full opacity-10"
           animate={{
             y: [0, -20, 0],
             scale: [1, 1.1, 1],
@@ -149,7 +161,7 @@ export default function FeaturesSection() {
           }}
         />
         <motion.div
-          className="absolute bottom-20 right-10 w-24 h-24 bg-orange-200 rounded-full opacity-10"
+          className="absolute bottom-20 right-10 w-24 h-24 bg-accent-200 rounded-full opacity-10"
           animate={{
             y: [0, 15, 0],
             x: [0, -10, 0],
@@ -164,7 +176,7 @@ export default function FeaturesSection() {
       <div className="container mx-auto text-center relative z-10 max-w-7xl">
         {/* Header */}
         <motion.div
-          className="mb-12 md:mb-16"
+          className="mb-12 sm:mb-16 lg:mb-20"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -177,7 +189,7 @@ export default function FeaturesSection() {
             viewport={{ once: true }}
             transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
           >
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 md:mb-6">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-primary-900 mb-4 sm:mb-6 font-poppins">
               Key Features
             </h2>
             <motion.div
@@ -186,12 +198,12 @@ export default function FeaturesSection() {
               initial="hidden"
               animate="visible"
             >
-              <Sparkles className="w-6 h-6 text-yellow-400" />
+              <Sparkles className="w-6 h-6 text-accent" />
             </motion.div>
           </motion.div>
 
           <motion.p
-            className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto"
+            className="text-lg sm:text-xl lg:text-2xl text-primary-700 max-w-4xl mx-auto leading-relaxed"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -203,7 +215,7 @@ export default function FeaturesSection() {
 
         {/* Features Grid */}
         <motion.div
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
@@ -223,7 +235,7 @@ export default function FeaturesSection() {
                 transition={{ duration: 0.3, ease: "easeOut" }}
               >
                 {/* Card */}
-                <div className={`relative p-6 md:p-8 rounded-2xl bg-gradient-to-br ${feature.bgGradient} border border-white/50 shadow-lg hover:shadow-2xl transition-all duration-500 backdrop-blur-sm h-full`}>
+                <div className={`relative p-6 sm:p-8 rounded-2xl bg-gradient-to-br ${feature.bgGradient} border border-white/50 shadow-lg hover:shadow-2xl transition-all duration-500 backdrop-blur-sm h-full`}>
 
                   {/* Animated background glow */}
                   <motion.div
@@ -237,20 +249,20 @@ export default function FeaturesSection() {
                   <div className="relative z-10">
                     {/* Icon with animated background */}
                     <motion.div
-                      className="relative mb-6"
+                      className="relative mb-6 sm:mb-8"
                       variants={iconVariants}
                       initial="idle"
                       whileHover="hover"
                     >
                       <motion.div
-                        className={`w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br ${feature.gradient} rounded-2xl flex items-center justify-center mx-auto shadow-lg`}
+                        className={`w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br ${feature.gradient} rounded-2xl flex items-center justify-center mx-auto shadow-lg`}
                         whileHover={{
                           boxShadow: `0 20px 40px ${feature.color}40`,
                           transition: { duration: 0.3 }
                         }}
                       >
                         <IconComponent
-                          className="h-8 w-8 md:h-10 md:w-10 text-white"
+                          className="h-8 w-8 sm:h-10 sm:w-10 text-white"
                         />
                       </motion.div>
 
@@ -265,7 +277,7 @@ export default function FeaturesSection() {
                           {[...Array(3)].map((_, i) => (
                             <motion.div
                               key={i}
-                              className="absolute w-2 h-2 bg-yellow-400 rounded-full"
+                              className="absolute w-2 h-2 bg-accent rounded-full"
                               style={{
                                 top: `${20 + i * 20}%`,
                                 left: `${80 + i * 10}%`,
@@ -287,7 +299,7 @@ export default function FeaturesSection() {
 
                     {/* Title */}
                     <motion.h3
-                      className="text-xl md:text-2xl font-semibold text-gray-900 mb-4"
+                      className="text-xl sm:text-2xl font-semibold text-primary-900 mb-4 font-poppins"
                       initial={{ opacity: 0 }}
                       whileInView={{ opacity: 1 }}
                       transition={{ delay: 0.2 }}
@@ -297,7 +309,7 @@ export default function FeaturesSection() {
 
                     {/* Description */}
                     <motion.p
-                      className="text-gray-600 text-sm md:text-base leading-relaxed mb-6"
+                      className="text-primary-700 text-sm sm:text-base leading-relaxed mb-6"
                       initial={{ opacity: 0 }}
                       whileInView={{ opacity: 1 }}
                       transition={{ delay: 0.3 }}
@@ -307,7 +319,7 @@ export default function FeaturesSection() {
 
                     {/* Learn More Link */}
                     <motion.div
-                      className="flex items-center justify-center text-sm font-medium text-gray-700 group-hover:text-gray-900 transition-colors duration-300"
+                      className="flex items-center justify-center text-sm font-medium text-primary-600 group-hover:text-primary-700 transition-colors duration-300"
                       initial={{ opacity: 0, x: -10 }}
                       whileInView={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.4 }}
@@ -341,21 +353,21 @@ export default function FeaturesSection() {
 
       {/* Floating background elements */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {[...Array(8)].map((_, i) => (
+        {floatingPositions.current.map((position, i) => (
           <motion.div
             key={i}
-            className="absolute w-2 h-2 bg-blue-300 rounded-full opacity-20"
+            className="absolute w-2 h-2 bg-primary-300 rounded-full opacity-20"
             style={{
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
+              top: position.top,
+              left: position.left,
             }}
             animate={{
               y: [0, -100, 0],
               opacity: [0.2, 0.5, 0.2],
               transition: {
-                duration: 3 + Math.random() * 2,
+                duration: 3 + (i * 0.3),
                 repeat: Infinity,
-                delay: Math.random() * 2
+                delay: i * 0.2
               }
             }}
           />

@@ -545,6 +545,22 @@ const BrandOnboarding = ({ userType }: BrandOnboardingProps) => {
           </div>
         </div>
 
+        {/* Back Button */}
+        <div className="flex justify-start mb-4">
+          <Button
+            variant="ghost"
+            onClick={() => {
+              if (window.confirm("Are you sure you want to go back to role selection? Your current progress will be lost.")) {
+                router.push('/onboarding');
+              }
+            }}
+            className="text-secondary-600 hover:text-secondary-700 hover:bg-secondary-50"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Role Selection
+          </Button>
+        </div>
+
         <Card>
           <CardContent className="p-8">
             <motion.div

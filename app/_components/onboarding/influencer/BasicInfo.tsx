@@ -225,8 +225,9 @@ const BasicInfo = ({ data, onUpdate, onValidationChange }: BasicInfoProps) => {
         )}
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
+
+
+              <div className="space-y-2">
           <Label htmlFor="niche" className="flex items-center">
             Primary Niche <span className="text-red-500 ml-1">*</span>
             {isFieldValid('niche') && <CheckCircle2 className="h-4 w-4 text-green-500 ml-2" />}
@@ -256,39 +257,6 @@ const BasicInfo = ({ data, onUpdate, onValidationChange }: BasicInfoProps) => {
             <p className="text-red-500 text-sm">{getFieldError('niche')}</p>
           )}
         </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="followerCount" className="flex items-center">
-            Follower Count <span className="text-red-500 ml-1">*</span>
-            {isFieldValid('followerCount') && <CheckCircle2 className="h-4 w-4 text-green-500 ml-2" />}
-          </Label>
-
-          <Select
-            value={data.followerCount}
-            onValueChange={(value: string) => {
-              handleFieldChange('followerCount', value);
-              setTouched(prev => ({ ...prev, followerCount: true }));
-            }}
-          >
-            <SelectTrigger className={`transition-all duration-200 focus:ring-2 focus:ring-primary ${
-              getFieldError('followerCount') ? 'border-red-500' : 
-              isFieldValid('followerCount') ? 'border-green-500' : ''
-            }`}>
-              <SelectValue placeholder="Select range" />
-            </SelectTrigger>
-            <SelectContent>
-              {followerRanges.map((range) => (
-                <SelectItem key={range} value={range}>
-                  {range}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {getFieldError('followerCount') && (
-              <p className="text-red-500 text-sm">{getFieldError('followerCount')}</p>
-          )}
-        </div>
-      </div>
 
       <div className="space-y-2">
         <Label htmlFor="location" className="flex items-center">

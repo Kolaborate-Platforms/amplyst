@@ -42,19 +42,13 @@ interface OnboardingData {
 
 interface CompletionStepProps {
   data: OnboardingData;
-  onComplete?: () => void; // Add optional callback prop
+  onComplete?: () => void; 
 }
 
 const CompletionStep = ({ data, onComplete }: CompletionStepProps) => {
   const [isRouterReady, setIsRouterReady] = useState(false);
   const router = useRouter();
   
-  // Wait for router to be ready
-  // useEffect(() => {
-  //   if (router.isReady) {
-  //     setIsRouterReady(true);
-  //   }
-  // }, [router.isReady]);
 
   const features = [
     {
@@ -81,7 +75,7 @@ const CompletionStep = ({ data, onComplete }: CompletionStepProps) => {
 
   const handleComplete = async () => {
     try {
-      // If there's a parent callback, use that instead of router
+
       if (onComplete) {
         onComplete();
         return;

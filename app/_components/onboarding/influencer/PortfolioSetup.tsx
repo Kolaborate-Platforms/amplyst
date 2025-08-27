@@ -146,30 +146,19 @@ const PortfolioSetup: React.FC<PortfolioSetupProps> = ({ data, onUpdate }) => {
         portfolio: [...(data.portfolio || []), ...newPortfolioItems.map(item => ({ ...item, id: Date.now() + Math.random() }))]
       });
 
-      // Set the first item as the current new item
       setNewItem(newPortfolioItems[0]);
     }
   };
 
-  // Handle file upload (placeholder for Next.js 15)
+
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // In a real Next.js 15 app, you would upload to your API route
-    // Example: POST to /api/upload
+
     try {
       const formData = new FormData();
       formData.append('file', file);
-      
-      // This would be your actual upload logic
-      // const response = await fetch('/api/upload', {
-      //   method: 'POST',
-      //   body: formData,
-      // });
-      // const { url } = await response.json();
-      
-      // For now, just use a placeholder URL
       const placeholderUrl = URL.createObjectURL(file);
       setNewItem({ ...newItem, url: placeholderUrl });
     } catch (error) {
@@ -300,13 +289,13 @@ const PortfolioSetup: React.FC<PortfolioSetupProps> = ({ data, onUpdate }) => {
               ))}
             </div>
 
-            <Button 
+            {/* <Button 
               onClick={addPortfolioItem}
               disabled={!newItem.title || !newItem.url}
               className="w-full"
             >
               Add to Portfolio
-            </Button>
+            </Button> */}
           </div>
         </CardContent>
       </Card>
