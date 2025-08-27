@@ -1,8 +1,15 @@
+
+
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import ConvexClientProvider from "@/provider/convexProviderWithClerk";
+import ConvexClientProvider from "../components/ConvexClientProvider";
 import { ClerkProvider } from "@clerk/nextjs";
 import './globals.css'
+
+if (!process.env.NEXT_PUBLIC_CONVEX_URL) {
+  throw new Error('Missing NEXT_PUBLIC_CONVEX_URL in your .env file')
+}
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,8 +22,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Amplist",
-  description: "Amplist",
+  title: "Amplyst",
+  description: "Amplyst",
 };
 
 export default function RootLayout({
@@ -30,9 +37,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ClerkProvider>
-          <ConvexClientProvider>
-            {children}
-          </ConvexClientProvider>
+          <ConvexClientProvider>{children}</ConvexClientProvider>
         </ClerkProvider>
       </body>
     </html>

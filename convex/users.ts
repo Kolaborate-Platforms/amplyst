@@ -19,6 +19,57 @@ export const getMyProfile = query({
   },
 });
 
+// export const getCurrentUserWithProfile = query({
+//   handler: async (ctx): Promise<{ user: Doc<"users">; profile: Doc<"profiles"> | null } | null> => {
+//     const identity = await ctx.auth.getUserIdentity();
+//     if (!identity) {
+//       return null;
+//     }
+
+//     const user = await ctx.db
+//       .query("users")
+//       .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
+//       .unique();
+
+//     if (!user) {
+//       return null;
+//     }
+
+//     const profile = await ctx.db
+//       .query("profiles")
+//       .withIndex("by_userId", (q) => q.eq("userId", user._id))
+//       .unique();
+
+//     return { user, profile };
+//   },
+// });
+
+
+export const getCurrentUserWithProfile = query({
+  handler: async (ctx): Promise<{ user: Doc<"users">; profile: Doc<"profiles"> | null } | null> => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      return null;
+    }
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
+      .unique();
+
+    if (!user) {
+      return null;
+    }
+
+    const profile = await ctx.db
+      .query("profiles")
+      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .unique();
+
+    return { user, profile };
+  },
+});
+
 
 export const insertProfile = mutation({
   args: {
@@ -32,7 +83,7 @@ export const insertProfile = mutation({
     profilePictureUrl: v.optional(v.string()),
     niche: v.string(),
     location: v.string(),
-    followerCount: v.optional(v.number()),
+    followerCount: v.optional(v.string()),
     socialAccounts: v.object({
       instagram: v.string(),
       tiktok: v.string(),
@@ -57,7 +108,7 @@ export const insertProfile = mutation({
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
-    console.log("User identity:", identity);
+    console.log("User identity in insertProfile function in users.ts:", identity);
 
     if (!identity) {
       throw new Error("Not authenticated");
