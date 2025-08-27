@@ -283,3 +283,7 @@ const BasicInfo = ({ data, onUpdate, onValidationChange }: BasicInfoProps) => {
 };
 
 export default BasicInfo;
+
+
+
+

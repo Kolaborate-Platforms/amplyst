@@ -71,9 +71,9 @@ export const validateBasicInfo = (data: BasicInfoValidation): ValidationResult =
     errors.push("Primary niche selection is required");
   }
 
-  if (!data.followerCount?.trim()) {
-    errors.push("Follower count range is required");
-  }
+  // if (!data.followerCount?.trim()) {
+  //   errors.push("Follower count range is required");
+  // }
 
   if (!data.location?.trim()) {
     errors.push("Location is required");

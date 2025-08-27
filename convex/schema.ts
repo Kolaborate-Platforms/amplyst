@@ -42,7 +42,7 @@ const applicationTables = {
     bio: v.optional(v.string()),
     niche: v.optional(v.string()),
     location: v.optional(v.string()),
-    followerCount: v.optional(v.number()),
+    followerCount: v.optional(v.string()),
     engagementRate: v.optional(v.number()),
     socialAccounts: v.optional(
       v.object({

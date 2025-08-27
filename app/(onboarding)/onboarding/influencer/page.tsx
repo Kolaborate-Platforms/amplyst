@@ -58,9 +58,9 @@ export interface ValidationResult {
     errors.push("Primary niche is required");
   }
   
-  if (!data.followerCount?.trim()) {
-    errors.push("Follower count is required");
-  }
+  // if (!data.followerCount?.trim()) {
+  //   errors.push("Follower count is required");
+  // }
   
   if (!data.location?.trim()) {
     errors.push("Location is required");
@@ -174,6 +174,7 @@ const Page = () => {
     }
   });
 
+
   const insertProfile = useMutation(api.users.insertProfile);
   const { user } = useUser();
   const router = useRouter(); 
@@ -240,6 +241,7 @@ const Page = () => {
         niche: formData.niche,
         location: formData.location,
         socialAccounts: formData.socialAccounts,
+        followerCount: formData.followerCount,
         portfolio: portfolio.map((item, index) => ({
           ...item,
           id: item.id ?? index,

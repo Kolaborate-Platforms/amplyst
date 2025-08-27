@@ -1,15 +1,11 @@
 "use client";
 
-// import { Button } from "@/components/ui/button";
-// import { Card, CardContent } from "@/components/ui/card";
-// import { CheckCircle, Users, Target, TrendingUp, Star } from "lucide-react";
-// import { useRouter } from "next/router";
-
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle, Target, TrendingUp, Users, Star } from 'lucide-react';
+import { SocialMediaProfileData } from './SocialMedia';
 
 interface OnboardingData {
   firstName: string;
@@ -38,17 +34,84 @@ interface OnboardingData {
       shares: string;
     };
   }>;
+  profileData?: SocialMediaProfileData;
+  primaryPlatform?: string; // Add this to track which platform is primary
 }
 
 interface CompletionStepProps {
   data: OnboardingData;
-  onComplete?: () => void; 
+  onComplete?: () => void;
 }
 
 const CompletionStep = ({ data, onComplete }: CompletionStepProps) => {
   const [isRouterReady, setIsRouterReady] = useState(false);
   const router = useRouter();
-  
+
+  // Function to get the actual follower count from verified profiles
+  const getActualFollowerCount = (): string => {
+    // First, try to get from the primary platform if it exists
+    if (data.primaryPlatform && data.profileData) {
+      if (data.primaryPlatform === 'tiktok' && data.profileData.tiktok) {
+        return data.profileData.tiktok.fans?.toString() || '0';
+      }
+      if (data.primaryPlatform === 'instagram' && data.profileData.instagram) {
+        return data.profileData.instagram.followersCount?.toString() || '0';
+      }
+    }
+
+    // Fallback: get the highest follower count from available verified profiles
+    if (data.profileData) {
+      let maxFollowers = 0;
+      let followerSource = '';
+
+      if (data.profileData.tiktok?.fans) {
+        const tiktokFollowers = parseInt(data.profileData.tiktok.fans.toString());
+        if (tiktokFollowers > maxFollowers) {
+          maxFollowers = tiktokFollowers;
+          followerSource = 'TikTok';
+        }
+      }
+
+      if (data.profileData.instagram?.followersCount) {
+        const instaFollowers = data.profileData.instagram.followersCount;
+        if (instaFollowers > maxFollowers) {
+          maxFollowers = instaFollowers;
+          followerSource = 'Instagram';
+        }
+      }
+
+      if (maxFollowers > 0) {
+        return maxFollowers.toLocaleString(); // Format with commas
+      }
+    }
+
+    // Final fallback to the original form data
+    return data.followerCount || '0';
+  };
+
+  // Function to get the platform name for the follower count
+  const getFollowerCountSource = (): string => {
+    if (data.primaryPlatform && data.profileData) {
+      if (data.primaryPlatform === 'tiktok' && data.profileData.tiktok) {
+        return 'TikTok';
+      }
+      if (data.primaryPlatform === 'instagram' && data.profileData.instagram) {
+        return 'Instagram';
+      }
+    }
+
+    // Check which platform has verified data
+    if (data.profileData) {
+      if (data.profileData.tiktok?.fans) return 'TikTok';
+      if (data.profileData.instagram?.followersCount) return 'Instagram';
+    }
+
+    return 'Estimated';
+  };
+
+  useEffect(() => {
+    setIsRouterReady(true);
+  }, []);
 
   const features = [
     {
@@ -75,13 +138,11 @@ const CompletionStep = ({ data, onComplete }: CompletionStepProps) => {
 
   const handleComplete = async () => {
     try {
-
       if (onComplete) {
         onComplete();
         return;
       }
 
-      // Only use router if it's ready
       if (isRouterReady) {
         await router.push("/dashboard/influencer");
       } else {
@@ -91,6 +152,9 @@ const CompletionStep = ({ data, onComplete }: CompletionStepProps) => {
       console.error("Navigation error:", error);
     }
   };
+
+  const actualFollowerCount = getActualFollowerCount();
+  const followerSource = getFollowerCountSource();
 
   return (
     <div className="space-y-6 animate-fade-in text-center">
@@ -123,13 +187,37 @@ const CompletionStep = ({ data, onComplete }: CompletionStepProps) => {
             </div>
             <div className="text-left">
               <span className="text-gray-600">Followers:</span>
-              <span className="ml-2 font-medium">{data.followerCount}</span>
+              <span className="ml-2 font-medium">
+                {actualFollowerCount}
+                {followerSource !== 'Estimated' && (
+                  <span className="text-xs text-gray-500 ml-1">({followerSource})</span>
+                )}
+              </span>
             </div>
             <div className="text-left">
               <span className="text-gray-600">Location:</span>
               <span className="ml-2 font-medium">{data.location}</span>
             </div>
           </div>
+          
+          {/* Show verification status */}
+          {data.profileData && (
+            <div className="mt-4 pt-4 border-t border-gray-200">
+              <h5 className="text-sm font-medium text-gray-700 mb-2">Verified Accounts:</h5>
+              <div className="flex flex-wrap gap-2">
+                {data.profileData.tiktok && (
+                  <span className="px-2 py-1 bg-black text-white text-xs rounded-full">
+                    TikTok: {data.profileData.tiktok.fans?.toLocaleString() || 0} followers
+                  </span>
+                )}
+                {data.profileData.instagram && (
+                  <span className="px-2 py-1 bg-pink-500 text-white text-xs rounded-full">
+                    Instagram: {data.profileData.instagram.followersCount?.toLocaleString() || 0} followers
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -166,12 +254,12 @@ const CompletionStep = ({ data, onComplete }: CompletionStepProps) => {
       </div>
 
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h4 className="font-medium text-blue-900 mb-2">Why connect your accounts?</h4>
+        <h4 className="font-medium text-blue-900 mb-2">Profile Verification Benefits</h4>
         <ul className="text-sm text-blue-700 space-y-1">
-          <li>• Automatically pull your follower count and engagement metrics</li>
-          <li>• Show brands your authentic audience and reach</li>
-          <li>• Track campaign performance in real-time</li>
-          <li>• Build trust with verified social media presence</li>
+          <li>• Real-time follower count from verified accounts</li>
+          <li>• Authentic engagement metrics for brand partnerships</li>
+          <li>• Automated campaign performance tracking</li>
+          <li>• Enhanced credibility with verified social presence</li>
         </ul>
       </div>
     </div>

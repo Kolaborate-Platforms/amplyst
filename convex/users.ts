@@ -19,30 +19,30 @@ export const getMyProfile = query({
   },
 });
 
-export const getCurrentUserWithProfile = query({
-  handler: async (ctx): Promise<{ user: Doc<"users">; profile: Doc<"profiles"> | null } | null> => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      return null;
-    }
+// export const getCurrentUserWithProfile = query({
+//   handler: async (ctx): Promise<{ user: Doc<"users">; profile: Doc<"profiles"> | null } | null> => {
+//     const identity = await ctx.auth.getUserIdentity();
+//     if (!identity) {
+//       return null;
+//     }
 
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
-      .unique();
+//     const user = await ctx.db
+//       .query("users")
+//       .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
+//       .unique();
 
-    if (!user) {
-      return null;
-    }
+//     if (!user) {
+//       return null;
+//     }
 
-    const profile = await ctx.db
-      .query("profiles")
-      .withIndex("by_userId", (q) => q.eq("userId", user._id))
-      .unique();
+//     const profile = await ctx.db
+//       .query("profiles")
+//       .withIndex("by_userId", (q) => q.eq("userId", user._id))
+//       .unique();
 
-    return { user, profile };
-  },
-});
+//     return { user, profile };
+//   },
+// });
 
 
 export const getCurrentUserWithProfile = query({
@@ -83,7 +83,7 @@ export const insertProfile = mutation({
     profilePictureUrl: v.optional(v.string()),
     niche: v.string(),
     location: v.string(),
-    followerCount: v.optional(v.number()),
+    followerCount: v.optional(v.string()),
     socialAccounts: v.object({
       instagram: v.string(),
       tiktok: v.string(),
