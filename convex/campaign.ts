@@ -380,23 +380,6 @@ import { api } from "./_generated/api";
 
 // In your convex/campaign.ts file, add these mutations:
 
-export const deleteCampaign = mutation({
-  args: { campaignId: v.id("campaigns") },
-  handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Not authenticated");
-    
-    const campaign = await ctx.db.get(args.campaignId);
-    if (!campaign) throw new Error("Campaign not found");
-    
-    // Only allow deletion of expired campaigns
-    if (campaign.status !== "expired") {
-      throw new Error("Only expired campaigns can be deleted");
-    }
-    
-    await ctx.db.delete(args.campaignId);
-  },
-});
 
 export const updateCampaignStatus = mutation({
   args: { 
@@ -528,6 +511,24 @@ export const updateCampaignStatus = mutation({
       return true;
     },
   });
+
+export const deleteCampaign = mutation({
+  args: { campaignId: v.id("campaigns") },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
+    
+    const campaign = await ctx.db.get(args.campaignId);
+    if (!campaign) throw new Error("Campaign not found");
+    
+    // Only allow deletion of expired campaigns
+    if (campaign.status !== "expired") {
+      throw new Error("Only expired campaigns can be deleted");
+    }
+    
+    await ctx.db.delete(args.campaignId);
+  },
+});
 
   // Check for expired campaigns and mark them as expired
   export const checkExpiredCampaigns = mutation({
