@@ -58,9 +58,9 @@ export interface ValidationResult {
     errors.push("Primary niche is required");
   }
   
-  if (!data.followerCount?.trim()) {
-    errors.push("Follower count is required");
-  }
+  // if (!data.followerCount?.trim()) {
+  //   errors.push("Follower count is required");
+  // }
   
   if (!data.location?.trim()) {
     errors.push("Location is required");
