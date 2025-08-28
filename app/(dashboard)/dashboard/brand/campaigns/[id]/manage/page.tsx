@@ -18,7 +18,7 @@ import {
   ExternalLink,
   Eye
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, use } from 'react';
 import { toast } from '@/components/ui/use-toast';
 import {
   Tabs,
@@ -67,14 +67,17 @@ interface Application {
 }
 
 interface CampaignManageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default function CampaignManage({ params }: CampaignManageProps) {
   const router = useRouter();
-  const campaignId = params.id as Id<'campaigns'>;
+  
+  // Use React's `use` hook to resolve the Promise
+  const resolvedParams = use(params);
+  const campaignId = resolvedParams.id as Id<'campaigns'>;
 
   const campaign = useQuery(api.campaign.getCampaignById, { campaignId });
   const rawApplications = useQuery(api.applications.listInfluencerApplications) || [];

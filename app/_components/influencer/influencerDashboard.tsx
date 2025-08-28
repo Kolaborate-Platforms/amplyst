@@ -953,6 +953,51 @@ const InfluencerDashboard = () => {
     </Card>
   );
 
+  return (
+    <SignedIn>
+        <div className="space-y-6">
+          <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+            <TabsList className="grid w-full grid-cols-4 mb-6">
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="discover">Discover</TabsTrigger>
+              <TabsTrigger value="brands">Brands</TabsTrigger>
+              <TabsTrigger value="applications">Applications</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="overview">
+              {renderOverview()}
+            </TabsContent>
+
+            <TabsContent value="discover">
+              <div className="text-center py-10">
+                <CampaignDiscovery campaigns={allCampaigns} profile={profile} />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="brands">
+               <BrandDiscovery brands={allBrands} campaigns={allCampaigns} />
+            </TabsContent>
+
+            <TabsContent value="applications">
+              {renderApplications()}
+            </TabsContent>
+          </Tabs>
+        </div>
+
+      {/* Modals */}
+      {renderEditProfileModal()}
+      {renderViewProfileModal()}
+    </SignedIn>
+  );
+};
+
+export default InfluencerDashboard;
+
+
+
+
+
+
 // const renderApplications = () => {
 //   // Helper function to check if campaign has expired
 //   const isCampaignExpired = (endDate: string | number | Date) => {
@@ -1255,54 +1300,6 @@ const InfluencerDashboard = () => {
 //     </Card>
 //   );
 // };
-
-
-  return (
-    <SignedIn>
-        <div className="space-y-6">
-          <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-            <TabsList className="grid w-full grid-cols-4 mb-6">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="discover">Discover</TabsTrigger>
-              <TabsTrigger value="brands">Brands</TabsTrigger>
-              <TabsTrigger value="applications">Applications</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="overview">
-              {renderOverview()}
-            </TabsContent>
-
-            <TabsContent value="discover">
-              <div className="text-center py-10">
-                <CampaignDiscovery campaigns={allCampaigns} profile={profile} />
-              </div>
-            </TabsContent>
-
-            <TabsContent value="brands">
-               <BrandDiscovery brands={allBrands} campaigns={allCampaigns} />
-            </TabsContent>
-
-            <TabsContent value="applications">
-              {renderApplications()}
-            </TabsContent>
-          </Tabs>
-        </div>
-
-      {/* Modals */}
-      {renderEditProfileModal()}
-      {renderViewProfileModal()}
-    </SignedIn>
-  );
-};
-
-export default InfluencerDashboard;
-
-
-
-
-
-
-
 
 
      

@@ -23,14 +23,10 @@ interface Campaign {
   creatorUserId: string;
 }
 
-interface MyApplicationsProps {
-  applications?: Campaign[]; // Optional prop for passing data from parent
-}
-
-const Page = ({ applications: propsApplications }: MyApplicationsProps = {}) => {
+const Page = () => {
   // Comment out Convex-specific code - replace with your data fetching solution
   // const applications = useQuery(api.campaign.campaignsForInfluencer);
-  const applications = propsApplications || []; // Use props or empty array as fallback
+  const applications: Campaign[] = []; // Use your actual data fetching logic here
   
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
   const [showDetails, setShowDetails] = useState(false);
@@ -50,11 +46,6 @@ const Page = ({ applications: propsApplications }: MyApplicationsProps = {}) => 
         return "bg-gray-50 text-gray-600 border-gray-200";
     }
   };
-
-  // Remove the loading check for now since we're not using async data fetching
-  // if (!applications) {
-  //   return <div>Loading...</div>;
-  // }
 
   const handleViewDetails = (campaign: Campaign) => {
     setSelectedCampaign(campaign);
@@ -124,7 +115,6 @@ const Page = ({ applications: propsApplications }: MyApplicationsProps = {}) => 
           </Card>
         ))
       )}
-
 
       <CampaignDetailsModal
         open={showDetails}

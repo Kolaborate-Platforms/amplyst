@@ -17,13 +17,13 @@ import {
   X,
   Plus
 } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import { toast } from "@/components/ui/use-toast";
 
 interface CampaignEditProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 const CONTENT_TYPES = [
@@ -43,7 +43,10 @@ const CONTENT_TYPES = [
 
 export default function CampaignEdit({ params }: CampaignEditProps) {
   const router = useRouter();
-  const campaignId = params.id as Id<"campaigns">;
+  
+  // Use React's `use` hook to resolve the Promise
+  const resolvedParams = use(params);
+  const campaignId = resolvedParams.id as Id<"campaigns">;
   
   // Fetch campaign data
   const campaign = useQuery(api.campaign.getCampaignById, { campaignId });
