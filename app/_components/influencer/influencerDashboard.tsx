@@ -370,7 +370,7 @@ const InfluencerDashboard = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-gradient-to-r from-blue-600 to-purple-700 rounded-xl p-6 sm:p-8 text-white"
+        className="bg-primary rounded-xl p-6 sm:p-8 text-white"
       >
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>

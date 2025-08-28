@@ -313,9 +313,9 @@ const CampaignDiscovery = ({ campaigns = [] , profile }: CampaignDiscoveryProps)
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                         <div className="flex items-center gap-2">
-            
+                          <DollarSign className="h-4 w-4 text-green-500 flex-shrink-0" />
                           <span className="font-medium">
                             {campaign.budget ? `$${campaign.budget.toLocaleString()}` : "Budget TBD"}
                           </span>
@@ -332,8 +332,8 @@ const CampaignDiscovery = ({ campaigns = [] , profile }: CampaignDiscoveryProps)
                           <Users className="h-4 w-4 text-[#3A7CA5]" />
                           <span>{campaign.targetAudience || "All audiences"}</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Star className="h-4 w-4 text-gray-500" />
+                        <div className="flex items-start gap-1">
+                          <Star className="h-4 w-4 text-gray-500 flex-shrink-0 mt-0.5" />
                           <span>{campaign.contentTypes?.join(", ") || "Various"}</span>
                         </div>
                       </div>
