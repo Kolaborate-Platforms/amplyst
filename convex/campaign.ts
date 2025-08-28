@@ -445,42 +445,7 @@ export const updateCampaignStatus = mutation({
     },
   });
 
-  // export const deleteCampaign = mutation({
-  //   args: {
-  //     campaignId: v.id("campaigns"),
-  //   },
-  //   handler: async (ctx, args) => {
-  //     const identity = await ctx.auth.getUserIdentity();
-  //     if (!identity) throw new Error("Not authenticated");
 
-  //     // Get the campaign
-  //     const campaign = await ctx.db.get(args.campaignId);
-  //     if (!campaign) throw new Error("Campaign not found");
-
-  //     // Verify the user owns the campaign
-  //     const brand = await ctx.db
-  //       .query("users")
-  //       .withIndex("by_token", q => q.eq("tokenIdentifier", identity.tokenIdentifier))
-  //       .unique();
-  //     if (!brand || brand._id !== campaign.creatorUserId) {
-  //       throw new Error("Not authorized to delete this campaign");
-  //     }
-
-  //     // Delete all applications for this campaign first
-  //     const applications = await ctx.db
-  //       .query("applications")
-  //       .filter(q => q.eq(q.field("campaignId"), args.campaignId))
-  //       .collect();
-
-  //     for (const application of applications) {
-  //       await ctx.db.delete(application._id);
-  //     }
-
-  //     // Delete the campaign
-  //     await ctx.db.delete(args.campaignId);
-  //     return true;
-  //   },
-  // });
 
   export const extendCampaign = mutation({
     args: {

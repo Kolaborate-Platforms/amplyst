@@ -34,7 +34,8 @@ import {
   Eye,
   User
 } from "lucide-react";
-import CampaignDiscovery from "../../_components/influencer/campaignDiscovery";
+// import CampaignDiscovery from "../../_components/influencer/campaignDiscovery";
+import CampaignDiscovery from "../../(dashboard)/dashboard/influencer/discover/campaigns/page";
 import BrandDiscovery from "../influencer/brandDiscovery";
 import { useRouter, useSearchParams } from "next/navigation";
 // import MyApplications from "../../_components/influencer/MyApplications";
@@ -951,6 +952,310 @@ const InfluencerDashboard = () => {
       </CardContent>
     </Card>
   );
+
+// const renderApplications = () => {
+//   // Helper function to check if campaign has expired
+//   const isCampaignExpired = (endDate: string | number | Date) => {
+//     if (!endDate) return false;
+//     return new Date(endDate) < new Date();
+//   };
+
+//   // Helper function to withdraw an application
+//   const handleWithdrawApplication = async (applicationId) => {
+//     try {
+//       await withdrawApplication({ applicationId });
+//       // Optionally show success message
+//       console.log("Application withdrawn successfully");
+//     } catch (error) {
+//       console.error("Failed to withdraw application:", error);
+//       // Handle error appropriately
+//     }
+//   };
+
+//   return (
+//     <Card className="hover:shadow-lg transition-all duration-300">
+//       <CardHeader>
+//         <CardTitle className="flex items-center gap-2">
+//           <MessageSquare className="w-5 h-5 text-purple-600" />
+//           My Applications
+//         </CardTitle>
+//         <p className="text-sm text-gray-500 mt-1">
+//           Track the status of your campaign applications
+//         </p>
+//         <div className="flex flex-wrap gap-4 mt-4 text-sm">
+//           <div className="flex items-center gap-2">
+//             <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
+//             <span className="font-medium">Total: </span>
+//             <span className="text-gray-600">{applications?.length || 0}</span>
+//           </div>
+//           <div className="flex items-center gap-2">
+//             <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+//             <span className="font-medium">Pending: </span>
+//             <span className="text-yellow-600">
+//               {applications?.filter(app => app.status === 'pending').length || 0}
+//             </span>
+//           </div>
+//           <div className="flex items-center gap-2">
+//             <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+//             <span className="font-medium">Approved: </span>
+//             <span className="text-green-600">
+//               {applications?.filter(app => app.status === 'approved').length || 0}
+//             </span>
+//           </div>
+//           <div className="flex items-center gap-2">
+//             <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+//             <span className="font-medium">Rejected: </span>
+//             <span className="text-red-600">
+//               {applications?.filter(app => app.status === 'rejected').length || 0}
+//             </span>
+//           </div>
+//         </div>
+//       </CardHeader>
+//       <CardContent>
+//         <div className="space-y-6">
+//           {applications?.length > 0 ? (
+//             applications
+//               .sort((a, b) => {
+//                 const statusPriority = { pending: 0, approved: 1, rejected: 2 };
+//                 if (statusPriority[a.status] !== statusPriority[b.status]) {
+//                   return statusPriority[a.status] - statusPriority[b.status];
+//                 }
+//                 return b._creationTime - a._creationTime;
+//               })
+//               .map((application, index) => {
+//                 const isExpired = isCampaignExpired(allCampaigns.endDate);
+//                 const canWithdraw = application.status === 'pending' && !isExpired;
+                
+//                 return (
+//                   <motion.div 
+//                     key={application._id}
+//                     className="p-4 sm:p-6 border border-gray-200 rounded-xl hover:bg-gray-50 transition-all duration-300 hover:shadow-md"
+//                     initial={{ opacity: 0, y: 20 }}
+//                     animate={{ opacity: 1, y: 0 }}
+//                     transition={{ duration: 0.3, delay: index * 0.1 }}
+//                   >
+//                     <div className="flex flex-col lg:flex-row gap-6">
+//                       <div className="flex-1">
+//                         <div className="flex items-center gap-4 mb-4">
+//                           <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">
+//                             {application.campaignTitle?.charAt(0) || "C"}
+//                           </div>
+//                           <div className="min-w-0 flex-1">
+//                             <h3 className="font-semibold text-lg text-gray-900 truncate">
+//                               {application.campaignTitle}
+//                               {isExpired && (
+//                                 <span className="ml-2 text-xs bg-gray-500 text-white px-2 py-1 rounded-full">
+//                                   EXPIRED
+//                                 </span>
+//                               )}
+//                             </h3>
+//                             <p className="text-sm text-gray-600">
+//                               Applied by: {application.influencerName}
+//                             </p>
+//                           </div>
+//                         </div>
+                        
+//                         {application.message && (
+//                           <div className="mb-3">
+//                             <p className="text-sm font-medium text-gray-700 mb-1">Application Message:</p>
+//                             <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
+//                               {application.message}
+//                             </p>
+//                           </div>
+//                         )}
+                        
+//                         {application.proposedContent && (
+//                           <div className="mb-4">
+//                             <p className="text-sm font-medium text-gray-700 mb-1">Proposed Content:</p>
+//                             <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
+//                               {application.proposedContent}
+//                             </p>
+//                           </div>
+//                         )}
+                        
+//                         <div className="flex flex-wrap items-center gap-4">
+//                           <Badge 
+//                             variant={
+//                               application.status === 'pending' ? 'secondary' :
+//                               application.status === 'approved' ? 'default' :
+//                               'destructive'
+//                             }
+//                             className={
+//                               application.status === 'approved' 
+//                                 ? 'bg-green-100 text-green-800 border-green-200' 
+//                                 : application.status === 'rejected'
+//                                 ? 'bg-red-100 text-red-800 border-red-200'
+//                                 : 'bg-yellow-100 text-yellow-800 border-yellow-200'
+//                             }
+//                           >
+//                             <div className="flex items-center gap-1">
+//                               {application.status === 'approved' && <CheckCircle className="w-3 h-3" />}
+//                               {application.status === 'rejected' && <XCircle className="w-3 h-3" />}
+//                               {application.status === 'pending' && <Clock className="w-3 h-3" />}
+//                               {application.status.charAt(0).toUpperCase() + application.status.slice(1)}
+//                             </div>
+//                           </Badge>
+                          
+//                           <span className="text-sm text-gray-500 flex items-center gap-1">
+//                             <Calendar className="w-4 h-4" />
+//                             Applied: {new Date(application._creationTime).toLocaleDateString()}
+//                           </span>
+
+//                           {/* Campaign End Date Display */}
+//                           {application.campaignEndDate && (
+//                             <span className={`text-sm flex items-center gap-1 ${
+//                               isExpired ? 'text-red-600' : 'text-gray-500'
+//                             }`}>
+//                               <Clock className="w-4 h-4" />
+//                               Campaign ends: {new Date(application.campaignEndDate).toLocaleDateString()}
+//                             </span>
+//                           )}
+//                         </div>
+                        
+//                         {/* Status Messages */}
+//                         {application.status === 'approved' && !isExpired && (
+//                           <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+//                             <p className="text-sm text-green-800 flex items-center gap-2">
+//                               <CheckCircle className="w-4 h-4" />
+//                               Congratulations! Your application has been approved. You can now start working on this campaign.
+//                             </p>
+//                           </div>
+//                         )}
+
+//                         {application.status === 'approved' && isExpired && (
+//                           <div className="mt-4 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+//                             <p className="text-sm text-gray-800 flex items-center gap-2">
+//                               <Clock className="w-4 h-4" />
+//                               This campaign has expired. No further action can be taken.
+//                             </p>
+//                           </div>
+//                         )}
+                        
+//                         {application.status === 'rejected' && (
+//                           <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+//                             <p className="text-sm text-red-800 flex items-center gap-2">
+//                               <XCircle className="w-4 h-4" />
+//                               Your application was not selected for this campaign. Keep applying to other opportunities!
+//                             </p>
+//                           </div>
+//                         )}
+                        
+//                         {application.status === 'pending' && !isExpired && (
+//                           <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+//                             <p className="text-sm text-yellow-800 flex items-center gap-2">
+//                               <Clock className="w-4 h-4" />
+//                               Your application is under review. We'll notify you once there's an update.
+//                             </p>
+//                           </div>
+//                         )}
+
+//                         {application.status === 'pending' && isExpired && (
+//                           <div className="mt-4 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+//                             <p className="text-sm text-gray-800 flex items-center gap-2">
+//                               <Clock className="w-4 h-4" />
+//                               This campaign has expired while your application was pending.
+//                             </p>
+//                           </div>
+//                         )}
+//                       </div>
+                      
+//                       {/* Action Buttons */}
+//                       <div className="flex flex-row lg:flex-col gap-2 lg:w-48">
+//                         {/* Approved campaign actions */}
+//                         {application.status === 'approved' && !isExpired && (
+//                           <>
+//                             <Button 
+//                               size="sm" 
+//                               className="flex-1 bg-green-600 hover:bg-green-700"
+//                               disabled={application.campaignStarted} // You'll need to track this state
+//                             >
+//                               <Play className="w-4 h-4 mr-1" />
+//                               {application.campaignStarted ? 'Campaign Started' : 'Start Campaign'}
+//                             </Button>
+//                             <Button size="sm" variant="outline" className="flex-1">
+//                               <MessageSquare className="w-4 h-4 mr-1" />
+//                               Contact Brand
+//                             </Button>
+//                           </>
+//                         )}
+
+//                         {/* Approved but expired campaign */}
+//                         {application.status === 'approved' && isExpired && (
+//                           <Button 
+//                             size="sm" 
+//                             variant="outline" 
+//                             className="flex-1" 
+//                             disabled
+//                           >
+//                             <XCircle className="w-4 h-4 mr-1" />
+//                             Campaign Expired
+//                           </Button>
+//                         )}
+
+//                         {/* Withdraw application button */}
+//                         {canWithdraw && (
+//                           <Button 
+//                             size="sm" 
+//                             variant="destructive" 
+//                             className="flex-1"
+//                             onClick={() => handleWithdrawApplication(application._id)}
+//                           >
+//                             <XCircle className="w-4 h-4 mr-1" />
+//                             Withdraw Application
+//                           </Button>
+//                         )}
+
+//                         {/* Show ongoing campaign controls if started */}
+//                         {application.status === 'approved' && application.campaignStarted && !isExpired && (
+//                           <Button 
+//                             size="sm" 
+//                             variant="outline" 
+//                             className="flex-1"
+//                           >
+//                             <Eye className="w-4 h-4 mr-1" />
+//                             View Progress
+//                           </Button>
+//                         )}
+
+//                         {/* Disable ongoing campaign if expired */}
+//                         {application.status === 'approved' && application.campaignStarted && isExpired && (
+//                           <Button 
+//                             size="sm" 
+//                             variant="secondary" 
+//                             className="flex-1"
+//                             disabled
+//                           >
+//                             <StopCircle className="w-4 h-4 mr-1" />
+//                             Campaign Ended
+//                           </Button>
+//                         )}
+//                       </div>
+//                     </div>
+//                   </motion.div>
+//                 );
+//               })
+//           ) : (
+//             <div className="text-center py-12">
+//               <MessageSquare className="w-16 h-16 text-gray-400 mx-auto mb-6" />
+//               <h3 className="text-xl font-medium text-gray-900 mb-2">No Applications Yet</h3>
+//               <p className="text-gray-600 mb-6 max-w-md mx-auto">
+//                 Your campaign applications will appear here. Start browsing and applying to campaigns to get started.
+//               </p>
+//               <Button 
+//                 onClick={() => handleTabChange('discover')} 
+//                 className="bg-purple-600 hover:bg-purple-700"
+//               >
+//                 <Search className="w-4 h-4 mr-2" />
+//                 Discover Campaigns
+//               </Button>
+//             </div>
+//           )}
+//         </div>
+//       </CardContent>
+//     </Card>
+//   );
+// };
+
 
   return (
     <SignedIn>

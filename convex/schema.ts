@@ -104,6 +104,8 @@ const applicationTables = {
     requirements: v.optional(v.string()),
     niche: v.optional(v.string()),
     expiredAt: v.optional(v.string()), // When the campaign was marked as expired
+    workStartedAt: v.optional(v.number()),
+    workEndedAt: v.optional(v.number()),
     // Add more campaign fields as needed
   }).index("by_creatorUserId", ["creatorUserId"])
     .index("by_status", ["status"])
