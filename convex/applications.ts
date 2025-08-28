@@ -273,42 +273,6 @@ export const getApplicationsByCampaign = query({
   },
 });
 
-
-// export const getApplicationStatsByCampaign = query({
-//   args: { campaignId: v.id("campaigns") },
-//   handler: async (ctx, args) => {
-//     const identity = await ctx.auth.getUserIdentity();
-//     if (!identity) return { pending: 0, approved: 0, rejected: 0 };
-
-//     const campaign = await ctx.db.get(args.campaignId);
-//     if (!campaign) return { pending: 0, approved: 0, rejected: 0 };
-
-//     const user = await ctx.db
-//       .query("users")
-//       .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
-//       .unique();
-
-//     if (!user || user._id !== campaign.creatorUserId) {
-//       throw new Error("Unauthorized to view application stats for this campaign");
-//     }
-
-//     const applications = await ctx.db
-//       .query("applications")
-//       .withIndex("by_campaign", (q) => q.eq("campaignId", args.campaignId))
-//       .collect();
-
-    
-// console.log("applications in getApplicationStatsByCampaign", applications)
-//     const stats = { pending: 0, approved: 0, rejected: 0 };
-//     for (const app of applications) {
-//       stats[app.status] += 1;
-//     }
-
-//     return stats;
-//   },
-// });
-
-
 export const getCampaignWithApplications = query({
   args: { campaignId: v.id("campaigns") },
   handler: async (ctx, args) => {
@@ -525,4 +489,229 @@ export const getApplicationStatsByCampaign = query({
 
     return stats;
   }
+});
+
+
+// Enhanced version of listInfluencerApplications to include campaign data
+export const listInfluencerApplicationsWithCampaignData = query({
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      return [];
+    }
+
+    // Get the user first
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_token", q => q.eq("tokenIdentifier", identity.tokenIdentifier))
+      .unique();
+
+    if (!user || user.role !== "influencer") {
+      return [];
+    }
+
+    // Get all applications for this influencer
+    const applications = await ctx.db
+      .query("applications")
+      .withIndex("by_influencer", q => q.eq("influencerId", user._id))
+      .collect();
+
+    // Get campaign details for each application
+    const applicationsWithCampaignData = await Promise.all(
+      applications.map(async (application) => {
+        const campaign = await ctx.db.get(application.campaignId);
+        
+        return {
+          ...application,
+          campaignEndDate: campaign?.endDate,
+          campaignStartDate: campaign?.startDate,
+          campaignStatus: campaign?.status,
+        };
+      })
+    );
+
+    return applicationsWithCampaignData;
+  },
+});
+
+// New mutation to mark a campaign as started by influencer
+export const startCampaignWork = mutation({
+  args: {
+    applicationId: v.id("applications"),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
+
+    // Get the user
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_token", q => q.eq("tokenIdentifier", identity.tokenIdentifier))
+      .unique();
+    if (!user) throw new Error("User not found");
+
+    // Get the application
+    const application = await ctx.db.get(args.applicationId);
+    if (!application) throw new Error("Application not found");
+
+    // Verify the user owns this application
+    if (application.influencerId !== user._id) {
+      throw new Error("Not authorized");
+    }
+
+    // Verify the application is approved
+    if (application.status !== "approved") {
+      throw new Error("Can only start work on approved applications");
+    }
+
+    // Get the campaign to check if it's not expired
+    const campaign = await ctx.db.get(application.campaignId);
+    if (!campaign) throw new Error("Campaign not found");
+
+    // Check if campaign has expired
+    if (campaign.endDate && new Date(campaign.endDate) < new Date()) {
+      throw new Error("Cannot start work on expired campaign");
+    }
+
+    // Update the application to mark as started
+    // await ctx.db.patch(args.applicationId, {
+    //   startDate: true,
+    //   workStartedAt: Date.now(),
+    //   updatedAt: Date.now(),
+    // });
+
+    return true;
+  },
+});
+
+// Enhanced withdraw application function
+export const withdrawInfluencerApplication = mutation({
+  args: {
+    applicationId: v.id("applications"),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
+
+    // Get the user
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_token", q => q.eq("tokenIdentifier", identity.tokenIdentifier))
+      .unique();
+    if (!user) throw new Error("User not found");
+
+    // Get the application
+    const application = await ctx.db.get(args.applicationId);
+    if (!application) throw new Error("Application not found");
+
+    // Verify the user owns this application
+    if (application.influencerId !== user._id) {
+      throw new Error("Not authorized to withdraw this application");
+    }
+
+    // Get the campaign to check if it's not expired
+    const campaign = await ctx.db.get(application.campaignId);
+    if (!campaign) throw new Error("Campaign not found");
+
+    // Check if campaign has expired
+    if (campaign.endDate && new Date(campaign.endDate) < new Date()) {
+      throw new Error("Cannot withdraw application for expired campaign");
+    }
+
+    // Can only withdraw pending applications
+    if (application.status !== "pending") {
+      throw new Error("Can only withdraw pending applications");
+    }
+
+    // Delete the application
+    await ctx.db.delete(args.applicationId);
+
+    return { success: true };
+  },
+});
+
+// Function to check and update expired campaigns
+export const markExpiredCampaigns = mutation({
+  handler: async (ctx) => {
+    const now = new Date().toISOString();
+    
+    // Find all active campaigns that have passed their end date
+    const expiredCampaigns = await ctx.db
+      .query("campaigns")
+      .filter((q) => 
+        q.and(
+          q.eq(q.field("status"), "active"),
+          q.lt(q.field("endDate"), now)
+        )
+      )
+      .collect();
+
+    // Mark campaigns as expired
+    for (const campaign of expiredCampaigns) {
+      await ctx.db.patch(campaign._id, {
+        status: "expired",
+      });
+    }
+
+    return expiredCampaigns.length;
+  },
+});
+
+// Function to get application with campaign status check
+export const getApplicationWithStatus = query({
+  args: { applicationId: v.id("applications") },
+  handler: async (ctx, args) => {
+    const application = await ctx.db.get(args.applicationId);
+    if (!application) return null;
+
+    const campaign = await ctx.db.get(application.campaignId);
+    if (!campaign) return application;
+
+    // Check if campaign is expired
+    const isExpired = campaign.endDate && new Date(campaign.endDate) < new Date();
+
+    return {
+      ...application,
+      campaignEndDate: campaign.endDate,
+      campaignStartDate: campaign.startDate,
+      campaignStatus: campaign.status,
+      isExpired: isExpired,
+    };
+  },
+});
+
+// Function to end campaign work (for when campaign expires while in progress)
+export const endCampaignWork = mutation({
+  args: {
+    applicationId: v.id("applications"),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_token", q => q.eq("tokenIdentifier", identity.tokenIdentifier))
+      .unique();
+    if (!user) throw new Error("User not found");
+
+    const application = await ctx.db.get(args.applicationId);
+    if (!application) throw new Error("Application not found");
+
+    console.log("Applications", application)
+
+    // Verify the user owns this application
+    if (application.influencerId !== user._id) {
+      throw new Error("Not authorized");
+    }
+
+    // Update the application to mark as ended
+    // await ctx.db.patch(args.applicationId, {
+    //   endDate: true,
+    //   workEndedAt: Date.now(),
+    //   updatedAt: Date.now(),
+    // });
+
+    return true;
+  },
 });
