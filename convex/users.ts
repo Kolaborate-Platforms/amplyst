@@ -19,30 +19,7 @@ export const getMyProfile = query({
   },
 });
 
-// export const getCurrentUserWithProfile = query({
-//   handler: async (ctx): Promise<{ user: Doc<"users">; profile: Doc<"profiles"> | null } | null> => {
-//     const identity = await ctx.auth.getUserIdentity();
-//     if (!identity) {
-//       return null;
-//     }
 
-//     const user = await ctx.db
-//       .query("users")
-//       .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
-//       .unique();
-
-//     if (!user) {
-//       return null;
-//     }
-
-//     const profile = await ctx.db
-//       .query("profiles")
-//       .withIndex("by_userId", (q) => q.eq("userId", user._id))
-//       .unique();
-
-//     return { user, profile };
-//   },
-// });
 
 
 export const getCurrentUserWithProfile = query({
@@ -70,124 +47,6 @@ export const getCurrentUserWithProfile = query({
   },
 });
 
-
-// export const insertProfile = mutation({
-//   args: {
-//     role: v.union(
-//       v.literal("influencer"),
-//       v.literal("brand"),
-//       v.literal("agency"),
-//     ),
-//     name: v.string(),
-//     bio: v.string(),
-//     profilePictureUrl: v.optional(v.string()),
-//     niche: v.string(),
-//     location: v.string(),
-//     followerCount: v.optional(v.string()),
-//     socialAccounts: v.object({
-//       instagram: v.string(),
-//       tiktok: v.string(),
-//       youtube: v.string(),
-//       twitter: v.string(),
-//     }),
-//     portfolio: v.array(
-//       v.object({
-//         id: v.number(),
-//         type: v.string(),
-//         title: v.string(),
-//         description: v.string(),
-//         url: v.string(),
-//         metrics: v.object({
-//           username: v.string(),
-//           followers: v.string(),
-//           likes: v.string(),
-//           following: v.string(),
-//         }),
-//       })
-//     ),
-//   },
-//   handler: async (ctx, args) => {
-//     const identity = await ctx.auth.getUserIdentity();
-
-//     if (!identity) {
-//       throw new Error("Not authenticated");
-//     }
-
-//     // Check if user already exists
-//     const existingUser = await ctx.db
-//       .query("users")
-//       .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
-//       .unique();
-
-//     console.log("Existing profile:", existingUser);
-
-//     if (existingUser) {
-//       // Update existing user with basic fields
-//       await ctx.db.patch(existingUser._id, {
-//         role: args.role,
-//         email: identity.email!,
-//       });
-
-//       // Update or create profile
-//       const existingProfile = await ctx.db
-//         .query("profiles")
-//         .withIndex("by_userId", (q) => q.eq("userId", existingUser._id))
-//         .unique();
-
-//       if (existingProfile) {
-//         return await ctx.db.patch(existingProfile._id, {
-//           role: args.role,
-//           name: args.name,
-//           bio: args.bio,
-//           profilePictureUrl: args.profilePictureUrl,
-//           niche: args.niche,
-//           location: args.location,
-//           followerCount: args.followerCount,
-//           socialAccounts: args.socialAccounts,
-//           portfolio: args.portfolio,
-//         });
-//       } else {
-//         return await ctx.db.insert("profiles", {
-//           userId: existingUser._id,
-//           role: args.role,
-//           name: args.name,
-//           bio: args.bio,
-//           profilePictureUrl: args.profilePictureUrl,
-//           niche: args.niche,
-//           location: args.location,
-//           followerCount: args.followerCount,
-//           socialAccounts: args.socialAccounts,
-//           portfolio: args.portfolio,
-//         });
-//       }
-//     } else {
-//       // Create new user with basic fields
-//       const userId = await ctx.db.insert("users", {
-//         tokenIdentifier: identity.tokenIdentifier,
-//         email: identity.email!,
-//         role: args.role,
-//       });
-
-//       // Create new profile
-//      const profileInserted =  await ctx.db.insert("profiles", {
-//         userId,
-//         role: args.role,
-//         name: args.name,
-//         bio: args.bio,
-//         profilePictureUrl: args.profilePictureUrl,
-//         niche: args.niche,
-//         location: args.location,
-//         followerCount: args.followerCount,
-//         socialAccounts: args.socialAccounts,
-//         portfolio: args.portfolio,
-//       });
-
-//       console.log("New profile inserted in users.ts:", profileInserted);
-
-//       return profileInserted;
-//     }
-//   },
-// });
 
 export const insertProfile = mutation({
   args: {
@@ -380,7 +239,6 @@ export const hasCompletedOnboarding = query({
   }
 });
 
-
 export const checkInfluencerProfile = mutation({
   args: { identifier: v.string() }, 
   handler: async (ctx, { identifier }) => {
@@ -441,3 +299,152 @@ export const getInfluencerProfileById = query({
 });
 
 
+
+
+
+
+
+
+// export const insertProfile = mutation({
+//   args: {
+//     role: v.union(
+//       v.literal("influencer"),
+//       v.literal("brand"),
+//       v.literal("agency"),
+//     ),
+//     name: v.string(),
+//     bio: v.string(),
+//     profilePictureUrl: v.optional(v.string()),
+//     niche: v.string(),
+//     location: v.string(),
+//     followerCount: v.optional(v.string()),
+//     socialAccounts: v.object({
+//       instagram: v.string(),
+//       tiktok: v.string(),
+//       youtube: v.string(),
+//       twitter: v.string(),
+//     }),
+//     portfolio: v.array(
+//       v.object({
+//         id: v.number(),
+//         type: v.string(),
+//         title: v.string(),
+//         description: v.string(),
+//         url: v.string(),
+//         metrics: v.object({
+//           username: v.string(),
+//           followers: v.string(),
+//           likes: v.string(),
+//           following: v.string(),
+//         }),
+//       })
+//     ),
+//   },
+//   handler: async (ctx, args) => {
+//     const identity = await ctx.auth.getUserIdentity();
+
+//     if (!identity) {
+//       throw new Error("Not authenticated");
+//     }
+
+//     // Check if user already exists
+//     const existingUser = await ctx.db
+//       .query("users")
+//       .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
+//       .unique();
+
+//     console.log("Existing profile:", existingUser);
+
+//     if (existingUser) {
+//       // Update existing user with basic fields
+//       await ctx.db.patch(existingUser._id, {
+//         role: args.role,
+//         email: identity.email!,
+//       });
+
+//       // Update or create profile
+//       const existingProfile = await ctx.db
+//         .query("profiles")
+//         .withIndex("by_userId", (q) => q.eq("userId", existingUser._id))
+//         .unique();
+
+//       if (existingProfile) {
+//         return await ctx.db.patch(existingProfile._id, {
+//           role: args.role,
+//           name: args.name,
+//           bio: args.bio,
+//           profilePictureUrl: args.profilePictureUrl,
+//           niche: args.niche,
+//           location: args.location,
+//           followerCount: args.followerCount,
+//           socialAccounts: args.socialAccounts,
+//           portfolio: args.portfolio,
+//         });
+//       } else {
+//         return await ctx.db.insert("profiles", {
+//           userId: existingUser._id,
+//           role: args.role,
+//           name: args.name,
+//           bio: args.bio,
+//           profilePictureUrl: args.profilePictureUrl,
+//           niche: args.niche,
+//           location: args.location,
+//           followerCount: args.followerCount,
+//           socialAccounts: args.socialAccounts,
+//           portfolio: args.portfolio,
+//         });
+//       }
+//     } else {
+//       // Create new user with basic fields
+//       const userId = await ctx.db.insert("users", {
+//         tokenIdentifier: identity.tokenIdentifier,
+//         email: identity.email!,
+//         role: args.role,
+//       });
+
+//       // Create new profile
+//      const profileInserted =  await ctx.db.insert("profiles", {
+//         userId,
+//         role: args.role,
+//         name: args.name,
+//         bio: args.bio,
+//         profilePictureUrl: args.profilePictureUrl,
+//         niche: args.niche,
+//         location: args.location,
+//         followerCount: args.followerCount,
+//         socialAccounts: args.socialAccounts,
+//         portfolio: args.portfolio,
+//       });
+
+//       console.log("New profile inserted in users.ts:", profileInserted);
+
+//       return profileInserted;
+//     }
+//   },
+// });
+
+
+// export const getCurrentUserWithProfile = query({
+//   handler: async (ctx): Promise<{ user: Doc<"users">; profile: Doc<"profiles"> | null } | null> => {
+//     const identity = await ctx.auth.getUserIdentity();
+//     if (!identity) {
+//       return null;
+//     }
+
+//     const user = await ctx.db
+//       .query("users")
+//       .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
+//       .unique();
+
+//     if (!user) {
+//       return null;
+//     }
+
+//     const profile = await ctx.db
+//       .query("profiles")
+//       .withIndex("by_userId", (q) => q.eq("userId", user._id))
+//       .unique();
+
+//     return { user, profile };
+//   },
+// });

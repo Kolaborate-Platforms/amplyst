@@ -226,10 +226,10 @@ const Page = () => {
         description: "Profile metrics",
         url: "",
         metrics: {
+          username: "",
           followers: formData.followerCount || "0",
           likes: "0",
-          comments: "0",
-          shares: "0"
+          following: "0"
         }
       }];
 
