@@ -2,7 +2,7 @@
 "use client";
 
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { act, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle, Target, TrendingUp, Users, Star } from 'lucide-react';
@@ -31,10 +31,10 @@ interface OnboardingData {
     description: string;
     url: string;
     metrics: {
+      username: string;
       followers: string;
       likes: string;
-      comments: string;
-      shares: string;
+      following: string;
     };
   }>;
   profileData?: SocialMediaProfileData;
@@ -54,6 +54,8 @@ const CompletionStep = ({ data, onComplete }: CompletionStepProps) => {
   
   // Convex mutation hook
   const insertProfile = useMutation(api.users.insertProfile);
+
+
 
   // Function to get the actual follower count from verified profiles
   const getActualFollowerCount = (): string => {
@@ -156,7 +158,7 @@ const CompletionStep = ({ data, onComplete }: CompletionStepProps) => {
         bio: data.bio,
         niche: data.niche,
         location: data.location,
-        followerCount: getActualFollowerCount(),
+        followerCount: getActualFollowerCount(),            
         socialAccounts: {
           instagram: data.socialAccounts.instagram || "",
           tiktok: data.socialAccounts.tiktok || "",
@@ -170,15 +172,15 @@ const CompletionStep = ({ data, onComplete }: CompletionStepProps) => {
           description: item.description,
           url: item.url,
           metrics: {
+            username: item.metrics.username,
             followers: item.metrics.followers,
             likes: item.metrics.likes,
-            comments: item.metrics.comments,
-            shares: item.metrics.shares,
+            following: item.metrics.following,
           },
         })),
       };
 
-      console.log("Saving profile data:", profileData);
+      console.log("Saving profile data in influencer dashboard:", profileData);
 
       // Save the profile to the database
       await insertProfile(profileData);

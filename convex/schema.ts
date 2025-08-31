@@ -78,6 +78,44 @@ const applicationTables = {
   })
   .index("by_userId", ["userId"]),
   
+// profiles: defineTable({
+//   userId: v.id("users"),
+//   role: v.union(
+//     v.literal("influencer"),
+//     v.literal("brand"),
+//     v.literal("agency"),
+//   ),
+//   name: v.string(),
+//   bio: v.string(),
+//   profilePictureUrl: v.optional(v.string()),
+//   niche: v.string(),
+//   location: v.string(),
+//   followerCount: v.optional(v.string()),
+//   socialAccounts: v.object({
+//     instagram: v.string(),
+//     tiktok: v.string(),
+//     youtube: v.string(),
+//     twitter: v.string(),
+//   }),
+//   portfolio: v.array(
+//     v.object({
+//       id: v.number(),
+//       type: v.string(),
+//       title: v.string(),
+//       description: v.string(),
+//       url: v.string(),
+//       metrics: v.object({
+//         username: v.string(),
+//         followers: v.number(),
+//         likes: v.string(),
+//         following: v.string(),
+//       }),
+//     })
+//   ),
+// }).index("by_userId", ["userId"]),
+
+
+
   campaigns : defineTable({
     creatorUserId: v.id("users"), // Brand or agency user
     role: v.union(

@@ -39,10 +39,11 @@ export interface PortfolioItem {
   description: string;
   url: string;
   metrics: {
+    username: string;
     followers: string;
     likes: string;
-    comments: string;
-    shares: string;
+    following: string;
+    // shares: string;
   };
 }
 
@@ -65,27 +66,13 @@ const PortfolioSetup: React.FC<PortfolioSetupProps> = ({ data, onUpdate }) => {
     description: "",
     url: "",
     metrics: {
+      username: "",
       followers: "",
       likes: "",
-      comments: "",
-      shares: ""
+      following: "",
+      // shares: ""
     }
   });
-
-  const addPortfolioItem = () => {
-    if (newItem.title && newItem.url) {
-      onUpdate({
-        portfolio: [...(data.portfolio || []), { ...newItem, id: Date.now() }]
-      });
-      setNewItem({
-        type: "image",
-        title: "",
-        description: "",
-        url: "",
-        metrics: { followers: "", likes: "", comments: "", shares: "" }
-      });
-    }
-  };
 
   const removePortfolioItem = (id: number | undefined) => {
     if (!id || !data.portfolio) return;
@@ -109,16 +96,19 @@ const PortfolioSetup: React.FC<PortfolioSetupProps> = ({ data, onUpdate }) => {
     // Generate for TikTok if available
     if (data.profileData.tiktok) {
       const tiktokData = data.profileData.tiktok;
+      console.log("TikTok Data in portfolio:", tiktokData);
+
+      
       newPortfolioItems.push({
         type: "video",
         title: `TikTok Content by @${tiktokData.name || "me"}`,
         description: `Engaging TikTok content with ${tiktokData.fans || 0} followers`,
         url: `https://tiktok.com/@${tiktokData.name || ""}`,
         metrics: {
-          followers: tiktokData.fans?.toString() || "0",
+          username: tiktokData.name || "me",
+          followers: tiktokData.fans?.toString() || "0", // Provide default value
           likes: tiktokData.heart?.toString() || "0",
-          comments: "0", // TikTok API doesn't provide this
-          shares: "0"    // TikTok API doesn't provide this
+          following: tiktokData.following?.toString() || "0", 
         }
       });
     }
@@ -132,10 +122,10 @@ const PortfolioSetup: React.FC<PortfolioSetupProps> = ({ data, onUpdate }) => {
         description: instaData.biography || "My Instagram content",
         url: instaData.profilePicUrl || `https://instagram.com/${instaData.username}`,
         metrics: {
-          followers: instaData.followersCount?.toString() || "0",
+          username: instaData.username || "me",
+          followers: instaData.followersCount?.toString() || "0", // Provide default value
           likes: "0", // Instagram API doesn't provide this
-          comments: "0", // Instagram API doesn't provide this
-          shares: "0"    // Instagram API doesn't provide this
+          following: instaData.followsCount?.toString() || "0", // Convert to string and provide default
         }
       });
     }

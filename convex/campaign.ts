@@ -145,9 +145,9 @@ import { api } from "./_generated/api";
           
           return {
             ...campaign,
-            creatorName: creatorProfile?.name || creatorProfile?.companyName || creatorUser?.username || "Unknown Creator",
-            creatorHandle: creatorProfile?.handle,
-            creatorVerified: creatorProfile?.verified,
+            creatorName: creatorProfile?.name ||  creatorUser?.username || "Unknown Creator",
+            // creatorHandle: creatorProfile?.handle,
+            // creatorVerified: creatorProfile?.verified,
             creatorProfilePicture: creatorProfile?.profilePictureUrl,
           };
         })

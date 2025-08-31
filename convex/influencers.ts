@@ -57,12 +57,12 @@ export const filterInfluencers = query({
     }
 
     // Apply engagement rate filter in memory since it's a computed value
-    filteredInfluencers = filteredInfluencers.filter(influencer => {
-      const engagementRate = influencer.engagementRate || 0;
-      const matchesMinEngagement = !args.minEngagement || engagementRate >= args.minEngagement;
-      const matchesMaxEngagement = !args.maxEngagement || engagementRate <= args.maxEngagement;
-      return matchesMinEngagement && matchesMaxEngagement;
-    });
+    // filteredInfluencers = filteredInfluencers.filter(influencer => {
+    //   const engagementRate = influencer.engagementRate || 0;
+    //   const matchesMinEngagement = !args.minEngagement || engagementRate >= args.minEngagement;
+    //   const matchesMaxEngagement = !args.maxEngagement || engagementRate <= args.maxEngagement;
+    //   return matchesMinEngagement && matchesMaxEngagement;
+    // });
 
     if (args.sortBy) {
       filteredInfluencers.sort((a, b) => {

@@ -74,6 +74,7 @@ const InfluencerDashboard = () => {
 
   // Live data queries
   const profile = useQuery(api.users.getInfluencerProfile, {});
+  console.log("Profile in influencerDashboard:", profile);
   const allCampaigns = useQuery(api.campaign.allCampaigns);
   const activeCampaigns = useQuery(api.campaign.activeForInfluencer);
   const applications = useQuery(api.applications.listInfluencerApplications);
@@ -151,10 +152,54 @@ const InfluencerDashboard = () => {
     }
   };
 
+
+
+  // const getActualFollowerCount = (): string => {
+  //   // First, try to get from the primary platform if it exists
+  //   if (profile.primaryPlatform && profile.profileData) {
+  //     if (profile.primaryPlatform === 'tiktok' && data.profileData.tiktok) {
+  //       return data.profileData.tiktok.fans?.toString() || '0';
+  //     }
+  //     if (data.primaryPlatform === 'instagram' && data.profileData.instagram) {
+  //       return data.profileData.instagram.followersCount?.toString() || '0';
+  //     }
+  //   }
+
+  //   // Fallback: get the highest follower count from available verified profiles
+  //   if (data.profileData) {
+  //     let maxFollowers = 0;
+  //     let followerSource = '';
+
+  //     if (data.profileData.tiktok?.fans) {
+  //       const tiktokFollowers = parseInt(data.profileData.tiktok.fans.toString());
+  //       if (tiktokFollowers > maxFollowers) {
+  //         maxFollowers = tiktokFollowers;
+  //         followerSource = 'TikTok';
+  //       }
+  //     }
+
+  //     if (data.profileData.instagram?.followersCount) {
+  //       const instaFollowers = data.profileData.instagram.followersCount;
+  //       if (instaFollowers > maxFollowers) {
+  //         maxFollowers = instaFollowers;
+  //         followerSource = 'Instagram';
+  //       }
+  //     }
+
+  //     if (maxFollowers > 0) {
+  //       return maxFollowers.toLocaleString(); // Format with commas
+  //     }
+  //   }
+
+  //   // Final fallback to the original form data
+  //   return data.followerCount || '0';
+  // };
+
   // Calculate stats
+ 
   const approvedApplicationsCount = applications ? applications.filter(app => app.status === 'approved').length : 0;
   const activeCampaignsCount = allCampaigns ? allCampaigns.filter(campaign => campaign.status === 'active').length : 0;
-  const totalEarnings = profile?.totalEarnings || 0;
+  // const totalEarnings = profile?.totalEarnings || 0;
 
   if (!profile || !allCampaigns || !activeCampaigns || !applications || !allBrands) {
     return (
@@ -321,12 +366,12 @@ const InfluencerDashboard = () => {
                     {Number(profile?.portfolio?.find(item => item.type === 'image')?.metrics?.followers || 0).toLocaleString()}
                   </p>
                 </div>
-                <div className="space-y-1">
+                {/* <div className="space-y-1">
                   <p className="text-sm font-medium text-gray-500">Total Earnings</p>
                   <p className="text-lg font-semibold text-green-600">
                     ${totalEarnings.toLocaleString()}
                   </p>
-                </div>
+                </div> */}
               </div>
               {profile?.socialAccounts && (
                 <div className="space-y-3">
@@ -396,15 +441,15 @@ const InfluencerDashboard = () => {
       {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {[
-          {
-            title: "Total Earnings",
-            value: `$${totalEarnings.toLocaleString()}`,
-            icon: DollarSign,
-            color: "text-green-600",
-            bgColor: "bg-green-50",
-            // change: "+12.5%",
-            // changeType: "positive"
-          },
+          // {
+          //   title: "Total Earnings",
+          //   value: `$${totalEarnings.toLocaleString()}`,
+          //   icon: DollarSign,
+          //   color: "text-green-600",
+          //   bgColor: "bg-green-50",
+          //   change: "+12.5%",
+          //   changeType: "positive"
+          // },
           {
             title: "Active Campaigns",
             value: activeCampaignsCount.toString(),
