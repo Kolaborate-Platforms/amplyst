@@ -72,8 +72,6 @@ import { api } from "./_generated/api";
     handler: async (ctx, args) => {
       // Wait a bit for auth to be established
       const identity = await ctx.auth.getUserIdentity();
-
-      console.log("Identity in campaign.ts", identity)
       
       if (!identity) {
         console.log("No identity found - user may not be authenticated");
