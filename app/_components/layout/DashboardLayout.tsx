@@ -70,9 +70,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         ${isMobile ? "fixed inset-y-0 left-0 z-50 w-64" : "hidden lg:block lg:w-64"}
         bg-white border-r border-gray-200 shadow-sm
       `}
-      initial={isMobile ? { x: -320 } : false}
-      animate={isMobile ? { x: 0 } : false}
-      exit={isMobile ? { x: -320 } : false}
+      initial={isMobile ? { x: -320 } : undefined}
+      animate={isMobile ? { x: 0 } : undefined}
+      exit={isMobile ? { x: -320 } : undefined}
       transition={{ type: "spring", damping: 25, stiffness: 300 }}
     >
       <div className="flex h-full flex-col">

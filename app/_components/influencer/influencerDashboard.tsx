@@ -34,11 +34,11 @@ import {
   Eye,
   User
 } from "lucide-react";
-// import CampaignDiscovery from "../../_components/influencer/campaignDiscovery";
-import CampaignDiscovery from "../../(dashboard)/dashboard/influencer/discover/campaigns/page";
+import CampaignDiscovery from "../../_components/influencer/campaignDiscovery";
+// import CampaignDiscovery from "../../(dashboard)/dashboard/influencer/discover/campaigns/page";
 import BrandDiscovery from "../influencer/brandDiscovery";
 import { useRouter, useSearchParams } from "next/navigation";
-// import MyApplications from "../../_components/influencer/MyApplications";
+
 
 
 
