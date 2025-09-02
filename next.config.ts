@@ -7,12 +7,15 @@
 // export default nextConfig;
 
 
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+import type { NextConfig } from "next";
+import type { Configuration } from "webpack";
+
+const nextConfig: NextConfig = {
   experimental: {
     esmExternals: false,
   },
-  webpack: (config) => {
+  webpack: (config: Configuration) => {
+    config.resolve = config.resolve || {};
     config.resolve.fallback = {
       ...config.resolve.fallback,
       fs: false,
@@ -25,4 +28,4 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+export default nextConfig;
