@@ -301,8 +301,10 @@ export default function RegisterPage() {
                     footerActionLink: "text-primary hover:text-primary/80",
                   },
                 }}
-                redirectUrl={`/onboarding/${selectedRole}`}
-                afterSignUpUrl={`/onboarding/${selectedRole}`}
+                // redirectUrl={`/onboarding/${selectedRole}`}
+                // afterSignUpUrl={`/onboarding/${selectedRole}`}
+                forceRedirectUrl={`/onboarding/${selectedRole}`}
+                fallbackRedirectUrl={`/onboarding/${selectedRole}`}
               />
             </CardContent>
           </Card>
