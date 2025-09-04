@@ -172,8 +172,8 @@
             <Unauthenticated>
               <SignInButton 
                 mode="modal" 
-                forceRedirectUrl="/onboarding"
-                signUpFallbackRedirectUrl="/onboarding"
+                forceRedirectUrl="/role"
+                signUpFallbackRedirectUrl="/role"
               >
                 <Button 
                   className="bg-gradient-to-r from-primary to-secondary hover:from-primary-600 hover:to-secondary-600 text-white px-6 sm:px-8 py-2 sm:py-3 rounded-full font-medium transition-all duration-300 shadow-lg hover:shadow-xl font-poppins"
