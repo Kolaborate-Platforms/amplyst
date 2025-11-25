@@ -21,7 +21,8 @@ const applicationTables = {
     role: v.union(
       v.literal("influencer"),
       v.literal("brand"),
-      v.literal("agency")
+      v.literal("agency"),
+      v.literal("pending")  // ✅ Add this for users who haven't completed onboarding
     ),
   })
   .index("by_token", ["tokenIdentifier"]) 
@@ -33,7 +34,8 @@ const applicationTables = {
     role: v.union(
       v.literal("influencer"),
       v.literal("brand"),
-      v.literal("agency")
+      v.literal("agency"),
+      v.literal("pending")  // ✅ Add this for users who haven't completed onboarding
     ),
     name: v.string(),
     handle: v.optional(v.string()), // <-- Add this

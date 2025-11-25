@@ -198,13 +198,15 @@ export default function HeroSection() {
           >
             <Button
               className="bg-gradient-to-r from-[#3A7CA5] to-[#88B04B] hover:from-[#3A7CA5]/90 hover:to-[#88B04B]/90 text-white px-8 py-4 rounded-full text-lg font-semibold transition-all duration-300"
-              onClick={() => router.push("/register?role=influencer")}
+              // onClick={() => router.push("/register?role=influencer")}
+              onClick={() => router.push("/signup/influencer")}
             >
               Join as Creator
             </Button>
             <Button
               className="border-2 border-gray-300 hover:border-[#3A7CA5] text-gray-700 hover:text-[#3A7CA5] px-8 py-4 rounded-full text-lg font-semibold transition-all duration-300"
-              onClick={() => router.push("/register?role=brand")}
+              onClick={() => router.push("/signup/brand")}
+              // onClick={() => router.push("/register?role=brand")}
             >
               Find Influencers
             </Button>
