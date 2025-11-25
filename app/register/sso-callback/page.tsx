@@ -1,256 +1,235 @@
-// // app/register/sso-callback/page.tsx
-// "use client";
-
-// import { useEffect, useState } from "react";
-// import { useUser } from "@clerk/nextjs";
-// import { useRouter, useSearchParams } from "next/navigation";
-
-// export default function SSOCallback() {
-//   const { user, isLoaded } = useUser();
-//   const router = useRouter();
-//   const searchParams = useSearchParams();
-//   const [error, setError] = useState<string>("");
-
-//   useEffect(() => {
-//     const handleCallback = async () => {
-//       if (!isLoaded) return;
-
-//       try {
-//         // Get role from URL params (preserved from initial registration)
-//         const role = searchParams?.get("role") || 
-//                     new URLSearchParams(window.location.search).get("role");
-        
-//         const redirectUrl = searchParams?.get("sign_up_force_redirect_url");
-
-//         if (user && role) {
-//           // Update user metadata with selected role
-//           await user.update({
-//             unsafeMetadata: { ...user.unsafeMetadata, role }
-//           });
-
-//           // Redirect to onboarding for the selected role
-//           router.push(`/onboarding/${role}`);
-//           return;
-//         }
-
-//         if (user && redirectUrl) {
-//           // Decode and redirect to the intended URL
-//           const decodedUrl = decodeURIComponent(redirectUrl);
-//           const url = new URL(decodedUrl);
-//           router.push(url.pathname + url.search);
-//           return;
-//         }
-
-//         if (user) {
-//           // User is signed in but no role info, redirect to register
-//           router.push("/register");
-//           return;
-//         }
-
-//         // If no user yet, wait for Clerk to finish processing
-//         setTimeout(() => {
-//           if (!user) {
-//             setError("Authentication failed. Please try again.");
-//           }
-//         }, 3000);
-
-//       } catch (error) {
-//         console.error("Error in OAuth callback:", error);
-//         setError("Something went wrong. Please try again.");
-//       }
-//     };
-
-//     handleCallback();
-//   }, [isLoaded, user, searchParams, router]);
-
-//   if (error) {
-//     return (
-//       <div className="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-50 flex items-center justify-center p-4">
-//         <div className="text-center max-w-md">
-//           <div className="text-red-500 text-lg mb-4">⚠️</div>
-//           <p className="text-red-600 mb-4">{error}</p>
-//           <button
-//             onClick={() => router.push("/register")}
-//             className="bg-primary text-white px-4 py-2 rounded-lg hover:opacity-90"
-//           >
-//             Try Again
-//           </button>
-//         </div>
-//       </div>
-//     );
-//   }
-
-//   return (
-//     <div className="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-50 flex items-center justify-center p-4">
-//       <div className="text-center">
-//         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-//         <p className="mt-4 text-gray-600">Completing your sign up...</p>
-//         <p className="mt-2 text-sm text-gray-500">This should only take a moment</p>
-//       </div>
-//     </div>
-//   );
-// }
-
-
-
-
-
-
-
-
-
-
-
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
-import { useRouter, useSearchParams } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
-export default function SSOCallback() {
-  const { user, isLoaded, isSignedIn } = useUser();
+export default function SSOCallbackPageSimplified() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const [error, setError] = useState<string>("");
-  const [isProcessing, setIsProcessing] = useState(true);
+  const { user, isLoaded, isSignedIn } = useUser();
+  const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+
+  // Extract role from URL parameters
+  const extractRoleFromUrl = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const afterSignUpUrl = urlParams.get("after_sign_up_url");
+    const redirectUrl = urlParams.get("redirect_url");
+
+    let role = urlParams.get("role");
+
+    // Try to extract role from afterSignUpUrl
+    if (!role && afterSignUpUrl) {
+      try {
+        const decodedUrl = decodeURIComponent(afterSignUpUrl);
+        console.log("Decoded afterSignUpUrl:", decodedUrl);
+        const url = new URL(decodedUrl);
+
+        // First try query params
+        role = url.searchParams.get("role");
+
+        // Then try pathname
+        if (!role) {
+          const pathParts = url.pathname.split('/').filter(Boolean);
+          if (pathParts.length >= 2 && pathParts[0] === 'onboarding') {
+            role = pathParts[1];
+          }
+        }
+      } catch (e) {
+        console.warn("Could not parse afterSignUpUrl", e);
+      }
+    }
+
+    // Try to extract role from redirectUrl
+    if (!role && redirectUrl) {
+      try {
+        const decodedUrl = decodeURIComponent(redirectUrl);
+        console.log("Decoded redirectUrl:", decodedUrl);
+        const url = new URL(decodedUrl);
+        role = url.searchParams.get("role");
+      } catch (e) {
+        console.warn("Could not parse redirectUrl", e);
+      }
+    }
+
+    // Fallback to localStorage and sessionStorage
+    if (!role) {
+      role = localStorage.getItem("selectedRole") || sessionStorage.getItem("pendingRole");
+    }
+
+    console.log("Extracted role:", role);
+    return role;
+  };
 
   useEffect(() => {
-    const handleCallback = async () => {
-      // Wait for Clerk to be fully loaded
-      if (!isLoaded) return;
+    console.log("SSO Callback State:", { isLoaded, isSignedIn, user: !!user, retryCount });
 
+    if (!isLoaded) return;
+
+    const handleRedirect = async () => {
       try {
-        // Give Clerk a moment to process the OAuth callback
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        const role = extractRoleFromUrl();
 
-        let role: string | null = null;
+        if (isSignedIn && user) {
+          console.log("User is signed in, processing...");
 
-        // Try multiple ways to get the role
-        // 1. From URL search params
-        role = searchParams?.get("role");
-        
-        // 2. From sessionStorage (stored before OAuth redirect)
-        if (!role && typeof window !== 'undefined') {
-          role = sessionStorage.getItem('pendingRole');
-        }
-
-        // 3. From the complex URL structure in redirect_url param
-        if (!role) {
-          const redirectUrl = searchParams?.get("redirect_url") || 
-                             searchParams?.get("sign_up_force_redirect_url");
-          if (redirectUrl) {
+          // Update user metadata if needed
+          if (role && !user.unsafeMetadata?.role) {
+            console.log("Updating user metadata with role:", role);
             try {
-              const decodedUrl = decodeURIComponent(redirectUrl);
-              const urlMatch = decodedUrl.match(/role=([^&]+)/);
-              if (urlMatch) {
-                role = urlMatch[1];
-              }
-            } catch (e) {
-              console.log("Could not parse redirect URL for role");
+              await user.update({
+                unsafeMetadata: { ...user.unsafeMetadata, role: role }
+              });
+              console.log("User metadata updated successfully");
+            } catch (updateError) {
+              console.error("Failed to update user metadata:", updateError);
+              // Continue anyway, don't block the flow
             }
           }
-        }
 
-        // 4. From current URL hash or other params
-        if (!role && typeof window !== 'undefined') {
-          const currentUrl = new URL(window.location.href);
-          role = currentUrl.searchParams.get("role");
-          
-          // Check if role is in the hash
-          if (!role && window.location.hash) {
-            const hashParams = new URLSearchParams(window.location.hash.substring(1));
-            role = hashParams.get("role");
+          const finalRole = user.unsafeMetadata?.role || role;
+          console.log("Final role for redirect:", finalRole);
+
+          // Clean up storage
+          localStorage.removeItem("selectedRole");
+          sessionStorage.removeItem("pendingRole");
+
+          if (finalRole) {
+            console.log("Redirecting to onboarding:", finalRole);
+            router.push(`/onboarding/${finalRole}`);
+          } else {
+            console.log("No role found, redirecting to dashboard");
+            router.push("/dashboard");
           }
-        }
+        } else {
+          console.log("User not signed in yet, waiting...");
 
-        console.log("Found role:", role);
-        console.log("User signed in:", isSignedIn);
-        console.log("User object:", user);
-
-        if (isSignedIn && user && role) {
-          console.log("Updating user metadata with role:", role);
-          
-          // Update user metadata with the role
-          await user.update({
-            unsafeMetadata: { 
-              ...user.unsafeMetadata, 
-              role: role 
-            }
-          });
-
-          // Clear stored role
-          if (typeof window !== 'undefined') {
-            sessionStorage.removeItem('pendingRole');
+          // If we've been waiting too long, increase retry count
+          if (retryCount >= 15) { // 15 seconds instead of 10
+            throw new Error("Authentication is taking too long");
           }
 
-          console.log("Redirecting to onboarding:", `/onboarding/${role}`);
-          router.push(`/onboarding/${role}`);
-          return;
-        }
-
-        if (isSignedIn && user && !role) {
-          console.log("User signed in but no role found, redirecting to register");
-          // User signed in but no role information
-          router.push("/register");
-          return;
-        }
-
-        if (!isSignedIn) {
-          console.log("User not signed in, waiting...");
-          // Give it more time for the OAuth flow to complete
+          // Wait and retry
           setTimeout(() => {
-            if (!isSignedIn) {
-              console.log("OAuth flow seems to have failed");
-              setError("Sign up failed. Please try again.");
-              setIsProcessing(false);
-            }
-          }, 5000);
-          return;
+            setRetryCount(prev => prev + 1);
+          }, 1000);
         }
-
       } catch (error) {
-        console.error("Error in OAuth callback:", error);
-        setError("Something went wrong during sign up. Please try again.");
-        setIsProcessing(false);
+        console.error("SSO callback error:", error);
+        setError((error as Error).message || "Authentication failed. Please try again.");
       }
     };
 
-    handleCallback();
-  }, [isLoaded, isSignedIn, user, searchParams, router]);
+    // Smaller delay for faster response
+    const timer = setTimeout(handleRedirect, 500);
+    return () => clearTimeout(timer);
+  }, [isLoaded, isSignedIn, user, router, retryCount]);
+
+  const handleRetry = async () => {
+    const role = extractRoleFromUrl();
+    console.log("Retry with role:", role);
+
+    if (role && user) {
+      try {
+        // Save role to Clerk before redirecting
+        if (!user.unsafeMetadata?.role) {
+          console.log("Saving role to Clerk during retry:", role);
+          await user.update({
+            unsafeMetadata: { ...user.unsafeMetadata, role: role }
+          });
+          console.log("Role saved successfully during retry");
+        }
+
+        // Clean up storage
+        localStorage.removeItem("selectedRole");
+        sessionStorage.removeItem("pendingRole");
+
+        // Redirect to onboarding
+        router.push(`/onboarding/${role}`);
+      } catch (updateError) {
+        console.error("Failed to save role during retry:", updateError);
+        // Still redirect, but role won't be saved
+        router.push(`/onboarding/${role}`);
+      }
+    } else if (role) {
+      // User not available but we have role, just redirect
+      router.push(`/onboarding/${role}`);
+    } else {
+      // If no role, go to register to start over
+      router.push("/register");
+    }
+  };
+
+  const handleStartOver = () => {
+    // Clear any stored state and start fresh
+    localStorage.removeItem("selectedRole");
+    sessionStorage.removeItem("pendingRole");
+    router.push("/register");
+  };
 
   if (error) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-50 flex items-center justify-center p-4">
-        <div className="text-center max-w-md">
-          <div className="text-red-500 text-lg mb-4">⚠️</div>
-          <p className="text-red-600 mb-4">{error}</p>
-          <button
-            onClick={() => {
-              if (typeof window !== 'undefined') {
-                sessionStorage.removeItem('pendingRole');
-              }
-              router.push("/register");
-            }}
-            className="bg-primary text-white px-4 py-2 rounded-lg hover:opacity-90"
-          >
-            Try Again
-          </button>
-        </div>
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <div className="flex items-center justify-center space-x-2 mb-4">
+              <div className="w-8 h-8 bg-gradient-to-r from-primary to-secondary rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">A</span>
+              </div>
+              <span className="text-xl font-bold text-gray-900 font-poppins">Amplyst</span>
+            </div>
+            <CardTitle className="text-xl font-poppins text-red-600">Authentication Error</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center space-y-4">
+            <p className="text-gray-600">{error}</p>
+            <div className="space-y-2">
+              <Button onClick={handleRetry} className="w-full">
+                Continue to Onboarding
+              </Button>
+              <Button onClick={handleStartOver} variant="outline" className="w-full">
+                Start Over
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
-  if (isProcessing) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-50 flex items-center justify-center p-4">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-gray-600">Completing your sign up...</p>
-          <p className="mt-2 text-sm text-gray-500">This should only take a moment</p>
-        </div>
-      </div>
-    );
-  }
-
-  return null;
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-50 flex items-center justify-center p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <div className="flex items-center justify-center space-x-2 mb-4">
+            <div className="w-8 h-8 bg-gradient-to-r from-primary to-secondary rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-sm">A</span>
+            </div>
+            <span className="text-xl font-bold text-gray-900 font-poppins">Amplyst</span>
+          </div>
+          <CardTitle className="text-xl font-poppins">Almost there...</CardTitle>
+        </CardHeader>
+        <CardContent className="text-center">
+          <p className="text-gray-600 mb-4">
+            Completing your authentication. Please wait...
+          </p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+          <p className="text-xs text-gray-500 mt-4">
+            This should only take a few seconds ({retryCount}/15)
+          </p>
+          {retryCount > 10 && (
+            <Button
+              onClick={handleRetry}
+              variant="outline"
+              size="sm"
+              className="mt-4"
+            >
+              Skip to Onboarding
+            </Button>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
 }

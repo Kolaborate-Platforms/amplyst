@@ -40,6 +40,8 @@ export default function RegisterPage() {
     if (role) {
       setSelectedRole(role);
       setStep("clerk-signup");
+      // Store role in localStorage as backup
+      localStorage.setItem("selectedRole", role);
     }
   }, []);
 
@@ -48,7 +50,11 @@ export default function RegisterPage() {
     if (user && selectedRole) {
       user
         .update({ unsafeMetadata: { ...user.unsafeMetadata, role: selectedRole } })
-        .then(() => router.push(`/onboarding/${selectedRole}`))
+        .then(() => {
+          // Clear the stored role
+          localStorage.removeItem("selectedRole");
+          router.push(`/onboarding/${selectedRole}`);
+        })
         .catch((error) => console.error("Error updating user metadata:", error));
     }
   }, [user, selectedRole, router]);
@@ -65,6 +71,9 @@ export default function RegisterPage() {
     setStep("clerk-signup");
     handleOAuthRedirect(role);
 
+    // Store role in localStorage
+    localStorage.setItem("selectedRole", role);
+
     const newUrl = new URL(window.location.href);
     newUrl.searchParams.set("role", role);
     window.history.replaceState({}, "", newUrl);
@@ -73,6 +82,7 @@ export default function RegisterPage() {
   const handleBackToRoleSelection = () => {
     setStep("role");
     setSelectedRole("");
+    localStorage.removeItem("selectedRole");
 
     const newUrl = new URL(window.location.href);
     newUrl.searchParams.delete("role");
